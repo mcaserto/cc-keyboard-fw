@@ -168,11 +168,11 @@ fn main() -> ! {
         // extract a report
         let report = cckeyboard::process_keys(keys_pressed);
 
-        input_key_press(report).unwrap_or(0);
+        process_keyboard_report(report).unwrap_or(0);
     }
 }
 
-fn input_key_press(report: KeyboardReport) -> Result<usize, usb_device::UsbError> {
+fn process_keyboard_report(report: KeyboardReport) -> Result<usize, usb_device::UsbError> {
     critical_section::with(|_| unsafe {
         // Now interrupts are disabled, grab the global variable and, if
         // available, send it a HID report
