@@ -56,6 +56,24 @@ pub enum Code {
     RightArrow = KeyboardUsage::KeyboardRightArrow as u8,
     UpArrow = KeyboardUsage::KeyboardUpArrow as u8,
     DownArrow = KeyboardUsage::KeyboardDownArrow as u8,
+    Tilde = KeyboardUsage::KeyboardBacktickTilde as u8,
+    F1 = KeyboardUsage::KeyboardF1 as u8,
+    F2 = KeyboardUsage::KeyboardF2 as u8,
+    F3 = KeyboardUsage::KeyboardF3 as u8,
+    F4 = KeyboardUsage::KeyboardF4 as u8,
+    F5 = KeyboardUsage::KeyboardF5 as u8,
+    F6 = KeyboardUsage::KeyboardF6 as u8,
+    F7 = KeyboardUsage::KeyboardF7 as u8,
+    F8 = KeyboardUsage::KeyboardF8 as u8,
+    F9 = KeyboardUsage::KeyboardF9 as u8,
+    F10 = KeyboardUsage::KeyboardF10 as u8,
+    F11 = KeyboardUsage::KeyboardF11 as u8,
+    F12 = KeyboardUsage::KeyboardF12 as u8,
+    Home = KeyboardUsage::KeyboardHome as u8,
+    End = KeyboardUsage::KeyboardEnd as u8,
+    PageUp = KeyboardUsage::KeyboardPageUp as u8,
+    PageDown = KeyboardUsage::KeyboardPageDown as u8,
+    Passthrough = 0x00FF, // Map to keys on extra layers that you want to act as your base layer keys
 }
 
 #[repr(u8)]

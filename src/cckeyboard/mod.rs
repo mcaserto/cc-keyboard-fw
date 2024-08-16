@@ -58,11 +58,29 @@ pub fn process_keys(switches: [Option<ActiveSwitch>; 6]) -> KeyboardReport {
                 // based on the action,
                 match action {
                     Key(val) => {
-                        report.keycodes[active_index] = val as u8;
-                        active_index += 1;
+                        match val {
+                            cc_definitions::Code::Passthrough => {
+                                // this is a passthrough, handle keypress on base layer
+                                let new_action = keymap::KEYMAP[0][value.row][value.column];
+                                match new_action {
+                                    Key(val) => {
+                                        // standard keycode
+                                        report.keycodes[active_index] = val as u8;
+                                        active_index += 1;
+                                    }
+                                    Mod(val) => report.modifier |= val as u8,
+                                    Lay(_val) => {} // processed in the above function
+                                }
+                            }
+                            _ => {
+                                // standard keycode
+                                report.keycodes[active_index] = val as u8;
+                                active_index += 1;
+                            }
+                        }
                     }
                     Mod(val) => report.modifier |= val as u8,
-                    Lay(_val) => {} // currently not implemented
+                    Lay(_val) => {} // this is processed in the above function
                 }
             }
             None => {
