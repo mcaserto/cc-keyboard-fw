@@ -3,25 +3,24 @@
 #![no_std]
 #![no_main]
 
-use adafruit_kb2040::entry;
+// set up bootloader
+use rp2040_boot2;
+#[link_section = ".boot2"]
+#[used]
+pub static BOOT_LOADER: [u8; 256] = rp2040_boot2::BOOT_LOADER_W25Q080;
+
+use rp2040_hal::entry;
 
 // The macro for marking our interrupt functions
-use adafruit_kb2040::hal::pac::interrupt;
-
 use core::iter::once;
 use panic_halt as _;
-
-use adafruit_kb2040::hal::{self};
-use adafruit_kb2040::{
-    hal::{
-        clocks::{init_clocks_and_plls, Clock},
-        pac,
-        pio::PIOExt,
-        timer::Timer,
-        watchdog::Watchdog,
-        Sio,
-    },
-    XOSC_CRYSTAL_FREQ,
+use rp2040_hal::pac::interrupt;
+use rp2040_hal::pio::PIOExt;
+use rp2040_hal::{
+    clocks::{init_clocks_and_plls, Clock},
+    pac,
+    sio::Sio,
+    watchdog::Watchdog,
 };
 use smart_leds::{SmartLedsWrite, RGB8};
 use ws2812_pio::Ws2812;
@@ -39,13 +38,13 @@ mod cckeyboard;
 use cckeyboard::matrix::SwitchMatrix;
 
 /// The USB Device Driver (shared with the interrupt).
-static mut USB_DEVICE: Option<UsbDevice<hal::usb::UsbBus>> = None;
+static mut USB_DEVICE: Option<UsbDevice<rp2040_hal::usb::UsbBus>> = None;
 
 /// The USB Bus Driver (shared with the interrupt).
-static mut USB_BUS: Option<UsbBusAllocator<hal::usb::UsbBus>> = None;
+static mut USB_BUS: Option<UsbBusAllocator<rp2040_hal::usb::UsbBus>> = None;
 
 /// The USB Human Interface Device Driver (shared with the interrupt).
-static mut USB_HID: Option<HIDClass<hal::usb::UsbBus>> = None;
+static mut USB_HID: Option<HIDClass<rp2040_hal::usb::UsbBus>> = None;
 
 /// Entry point to our bare-metal application.
 #[entry]
@@ -53,9 +52,10 @@ fn main() -> ! {
     // Configure the RP2040 peripherals
     let mut pac = pac::Peripherals::take().unwrap();
     let mut watchdog = Watchdog::new(pac.WATCHDOG);
+    let external_xtal_freq_hz = 12_000_000u32;
 
     let clocks = init_clocks_and_plls(
-        XOSC_CRYSTAL_FREQ,
+        external_xtal_freq_hz,
         pac.XOSC,
         pac.CLOCKS,
         pac.PLL_SYS,
@@ -67,10 +67,10 @@ fn main() -> ! {
     .unwrap();
 
     // set up timer
-    let timer = Timer::new(pac.TIMER, &mut pac.RESETS, &clocks);
+    let timer = rp2040_hal::Timer::new(pac.TIMER, &mut pac.RESETS, &clocks);
 
     // Set up the USB driver
-    let usb_bus = UsbBusAllocator::new(hal::usb::UsbBus::new(
+    let usb_bus = UsbBusAllocator::new(rp2040_hal::usb::UsbBus::new(
         pac.USBCTRL_REGS,
         pac.USBCTRL_DPRAM,
         clocks.usb_clock,
@@ -108,12 +108,12 @@ fn main() -> ! {
 
     unsafe {
         // Enable the USB interrupt
-        pac::NVIC::unmask(hal::pac::Interrupt::USBCTRL_IRQ);
+        pac::NVIC::unmask(rp2040_hal::pac::Interrupt::USBCTRL_IRQ);
     };
 
     let sio = Sio::new(pac.SIO);
 
-    let pins = adafruit_kb2040::Pins::new(
+    let pins = rp2040_hal::gpio::Pins::new(
         pac.IO_BANK0,
         pac.PADS_BANK0,
         sio.gpio_bank0,
@@ -124,7 +124,7 @@ fn main() -> ! {
     let (mut pio, sm0, _, _, _) = pac.PIO0.split(&mut pac.RESETS);
 
     let mut ws = Ws2812::new(
-        pins.neopixel.into_function(),
+        pins.gpio17.into_function(),
         &mut pio,
         sm0,
         clocks.peripheral_clock.freq(),
@@ -136,24 +136,24 @@ fn main() -> ! {
     // let mut timer = timer; // rebind to force a copy of the timer
 
     // get columns
-    let c0 = pins.d4.into_push_pull_output().into_dyn_pin();
-    let c1 = pins.d5.into_push_pull_output().into_dyn_pin();
-    let c2 = pins.d6.into_push_pull_output().into_dyn_pin();
-    let c3 = pins.d7.into_push_pull_output().into_dyn_pin();
-    let c4 = pins.d8.into_push_pull_output().into_dyn_pin();
-    let c5 = pins.d9.into_push_pull_output().into_dyn_pin();
-    let c6 = pins.a3.into_push_pull_output().into_dyn_pin();
-    let c7 = pins.a2.into_push_pull_output().into_dyn_pin();
-    let c8 = pins.a1.into_push_pull_output().into_dyn_pin();
-    let c9 = pins.a0.into_push_pull_output().into_dyn_pin();
-    let c10 = pins.sclk.into_push_pull_output().into_dyn_pin();
-    let c11 = pins.miso.into_push_pull_output().into_dyn_pin();
+    let c0 = pins.gpio4.into_push_pull_output().into_dyn_pin();
+    let c1 = pins.gpio5.into_push_pull_output().into_dyn_pin();
+    let c2 = pins.gpio6.into_push_pull_output().into_dyn_pin();
+    let c3 = pins.gpio7.into_push_pull_output().into_dyn_pin();
+    let c4 = pins.gpio8.into_push_pull_output().into_dyn_pin();
+    let c5 = pins.gpio9.into_push_pull_output().into_dyn_pin();
+    let c6 = pins.gpio29.into_push_pull_output().into_dyn_pin();
+    let c7 = pins.gpio28.into_push_pull_output().into_dyn_pin();
+    let c8 = pins.gpio27.into_push_pull_output().into_dyn_pin();
+    let c9 = pins.gpio26.into_push_pull_output().into_dyn_pin();
+    let c10 = pins.gpio18.into_push_pull_output().into_dyn_pin();
+    let c11 = pins.gpio20.into_push_pull_output().into_dyn_pin();
 
     // get rows
-    let r0 = pins.tx.into_pull_down_input().into_dyn_pin();
-    let r1 = pins.rx.into_pull_down_input().into_dyn_pin();
-    let r2 = pins.d2.into_pull_down_input().into_dyn_pin();
-    let r3 = pins.d3.into_pull_down_input().into_dyn_pin();
+    let r0 = pins.gpio0.into_pull_down_input().into_dyn_pin();
+    let r1 = pins.gpio1.into_pull_down_input().into_dyn_pin();
+    let r2 = pins.gpio2.into_pull_down_input().into_dyn_pin();
+    let r3 = pins.gpio3.into_pull_down_input().into_dyn_pin();
 
     let columns = [c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11];
     let rows = [r0, r1, r2, r3];

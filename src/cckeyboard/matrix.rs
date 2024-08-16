@@ -1,5 +1,6 @@
-use adafruit_kb2040::hal::gpio::{DynPinId, FunctionSio, Pin, PullDown, SioInput, SioOutput};
 use embedded_hal::digital::{InputPin, OutputPin};
+use rp2040_hal::gpio::PullDown;
+use rp2040_hal::gpio::{DynPinId, FunctionSio, Pin, SioInput, SioOutput};
 
 use super::keymap;
 

@@ -14,7 +14,7 @@ defmt-rtt = "0.4"
 panic-probe = { version = "0.3", features = ["print-defmt"] }
 
 # bsp kb2040
-adafruit-kb2040 = "0.8.0"
+#adafruit-kb2040 = "0.8.0"
 
 # extra dependencies
 panic-halt= "0.2.0"
@@ -25,8 +25,8 @@ usbd-hid = "0.7.0"
 critical-section = "1.1.2"
 
 # If you're not going to use a Board Support Package you'll need these:
-# rp2040-hal = { version="0.10", features=["rt", "critical-section-impl"] }
-# rp2040-boot2 = "0.3"
+rp2040-hal = { version="0.10", features=["rt", "critical-section-impl"] }
+rp2040-boot2 = "0.3"
 
 # cargo build/run
 [profile.dev]
