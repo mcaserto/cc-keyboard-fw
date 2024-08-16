@@ -1,6 +1,6 @@
 [package]
 edition = "2021"
-name = "rp2040-project-template"
+name = "cc-keyboard-fw"
 version = "0.1.0"
 license = "MIT OR Apache-2.0"
 
@@ -13,11 +13,16 @@ defmt = "0.3"
 defmt-rtt = "0.4"
 panic-probe = { version = "0.3", features = ["print-defmt"] }
 
-# We're using a Pico by default on this template
-rp-pico = "0.9"
+# bsp kb2040
+adafruit-kb2040 = "0.8.0"
 
-# but you can use any BSP. Uncomment this to use the pro_micro_rp2040 BSP instead
-# sparkfun-pro-micro-rp2040 = "0.8"
+# extra dependencies
+panic-halt= "0.2.0"
+smart-leds = "0.3.0"
+ws2812-pio = "0.8.0"
+usb-device = "0.3.1"
+usbd-hid = "0.7.0"
+critical-section = "1.1.2"
 
 # If you're not going to use a Board Support Package you'll need these:
 # rp2040-hal = { version="0.10", features=["rt", "critical-section-impl"] }
