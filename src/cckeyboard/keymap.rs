@@ -37,8 +37,8 @@ pub const KEYMAP: [[CCKey; COLUMNS]; ROWS] = [
         CCKey::Key(Code::J),
         CCKey::Key(Code::K),
         CCKey::Key(Code::L),
-        CCKey::Key(Code::SCLN),
-        CCKey::Key(Code::QUOTE),
+        CCKey::Key(Code::Scln),
+        CCKey::Key(Code::Quote),
     ],
     [
         CCKey::Mod(Mod::Shft),
@@ -56,9 +56,9 @@ pub const KEYMAP: [[CCKey; COLUMNS]; ROWS] = [
     ],
     [
         CCKey::Key(Code::Esc),
-        CCKey::Mod(Mod::CTRL),
-        CCKey::Mod(Mod::ALT),
-        CCKey::Mod(Mod::GUI),
+        CCKey::Mod(Mod::Ctrl),
+        CCKey::Mod(Mod::Alt),
+        CCKey::Mod(Mod::Gui),
         CCKey::Lay(1),
         CCKey::Key(Code::Space),
         CCKey::Key(Code::Space),

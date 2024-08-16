@@ -26,9 +26,9 @@ pub fn process_keys(switches: [Option<ActiveSwitch>; 6]) -> KeyboardReport {
                 match action {
                     Key(val) => {
                         report.keycodes[active_index] = val as u8;
-                        active_index = active_index + 1;
+                        active_index += 1;
                     }
-                    Mod(val) => report.modifier = report.modifier | val as u8,
+                    Mod(val) => report.modifier |= val as u8,
                     Lay(_val) => {} // currently not implemented
                 }
             }

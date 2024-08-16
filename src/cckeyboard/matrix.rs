@@ -24,7 +24,7 @@ impl SwitchMatrix {
         SwitchMatrix {
             matrix_columns: columns,
             matrix_rows: rows,
-            delay: delay,
+            delay,
         }
     }
 
@@ -47,7 +47,7 @@ impl SwitchMatrix {
                         column: column_index,
                         row: row_index,
                     });
-                    store_index = store_index + 1;
+                    store_index += 1;
                 }
             }
 

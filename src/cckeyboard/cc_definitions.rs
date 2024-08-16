@@ -47,8 +47,8 @@ pub enum Code {
     Backspace = KeyboardUsage::KeyboardBackspace as u8,
     Tab = KeyboardUsage::KeyboardTab as u8,
     Space = KeyboardUsage::KeyboardSpacebar as u8,
-    SCLN = KeyboardUsage::KeyboardSemiColon as u8,
-    QUOTE = KeyboardUsage::KeyboardSingleDoubleQuote as u8,
+    Scln = KeyboardUsage::KeyboardSemiColon as u8,
+    Quote = KeyboardUsage::KeyboardSingleDoubleQuote as u8,
     Comma = KeyboardUsage::KeyboardCommaLess as u8,
     Period = KeyboardUsage::KeyboardPeriodGreater as u8,
     Slash = KeyboardUsage::KeyboardSlashQuestion as u8,
@@ -64,10 +64,10 @@ pub enum Code {
 #[derive(Copy, Debug, Clone, Eq, PartialEq)]
 pub enum Mod {
     // modifier keys
-    Shft = 0x02 as u8,
-    CTRL = 0x01 as u8,
-    ALT = 0x04 as u8,
-    GUI = 0x08 as u8,
+    Shft = 0x02,
+    Ctrl = 0x01,
+    Alt = 0x04,
+    Gui = 0x08,
 }
 
 #[repr(u8)]
