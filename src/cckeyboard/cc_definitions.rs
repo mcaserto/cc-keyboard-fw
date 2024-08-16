@@ -75,7 +75,7 @@ pub enum Mod {
 #[non_exhaustive]
 #[derive(Copy, Debug, Clone, Eq, PartialEq)]
 pub enum CCKey {
-    Key(Code), // normal key
-    Mod(Mod),  // modifier key
-    Lay(u8),   // layer shift
+    Key(Code),  // normal key
+    Mod(Mod),   // modifier key
+    Lay(usize), // layer shift
 }
