@@ -1,26 +1,27 @@
 // File: keymap.rs
 // Description: Contains information about the keyboard keymap
-use crate::cc_engine::keycodes::CC_KEYCODE::{self, *};
+use crate::cc_engine::keycodes::{CCKeycode, CCKeycode::*};
 
 pub const ROWS: usize = 4;
 pub const COLUMNS: usize = 12;
 pub const NUM_LAYERS: usize = 2;
 
-type CC_LAYER = [CC_KEYCODE; ROWS * COLUMNS];
-type CC_KEYMAP = [CC_LAYER; { NUM_LAYERS }];
+#[allow(non_camel_case_types)]
+type CCLayer = [CCKeycode; ROWS * COLUMNS];
+type CCKeymap = [CCLayer; NUM_LAYERS];
 
 #[rustfmt::skip]
-pub const KEYMAP: CC_KEYMAP = [
+pub const KEYMAP: CCKeymap = [
 [
-    CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A,
-    CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A,
-    CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A,
-    CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A,
+    CC_TAB, CC___Q, CC___W, CC___E, CC___R, CC___T, CC___Y, CC___U, CC___I, CC___O, CC___P, CC_BSP,
+    CC_BSP, CC___A, CC___S, CC___D, CC___F, CC___G, CC___H, CC___J, CC___K, CC___L, CC_NON, CC_NON,
+    CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A,
+    CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A,
 ],
 [
-    CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A,
-    CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A,
-    CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A,
-    CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A, CC_A,
+    CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A,
+    CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A,
+    CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A,
+    CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A, CC___A,
 ]
 ];
