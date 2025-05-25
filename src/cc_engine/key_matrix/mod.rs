@@ -1,5 +1,6 @@
 use embassy_rp::gpio::{AnyPin, Input, Level, Output, Pull};
 
+#[allow(dead_code)]
 pub enum DiodeDirection {
     ColumnToRow,
     RowToColumn,

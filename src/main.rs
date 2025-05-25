@@ -43,7 +43,7 @@ async fn main(spawner: Spawner) {
     ];
 
     // create keymap from rows and columns
-    let mut key_matrix =
+    let key_matrix =
         key_matrix::KeyMatrix::new(rows, cols, key_matrix::DiodeDirection::ColumnToRow);
 
     // initialize usb tasks
