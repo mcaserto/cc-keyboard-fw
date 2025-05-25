@@ -12,7 +12,9 @@ use tasks::status;
 use tasks::usb;
 
 mod cc_engine;
-use cc_engine::keymap;
+use cc_engine::key_matrix;
+
+mod keymap;
 
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
@@ -40,7 +42,9 @@ async fn main(spawner: Spawner) {
         p.PIN_20.degrade(),
     ];
 
-    let keymap = keymap::KeyMatrix::new(rows, cols, keymap::DiodeDirection::COLUMN_TO_ROW);
+    // create keymap from rows and columns
+    let mut key_matrix =
+        key_matrix::KeyMatrix::new(rows, cols, key_matrix::DiodeDirection::ColumnToRow);
 
     // initialize usb tasks
     usb::initialize_usb_resources(p.USB, &spawner);
@@ -49,5 +53,5 @@ async fn main(spawner: Spawner) {
     spawner.must_spawn(status::status_light_handler(p.PIN_17, p.PIO0, p.DMA_CH0));
 
     // start keyboard matrix polling task
-    spawner.must_spawn(polling::matrix_polling_handler());
+    spawner.must_spawn(polling::matrix_polling_handler(key_matrix));
 }
