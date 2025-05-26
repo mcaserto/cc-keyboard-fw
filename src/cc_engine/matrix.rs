@@ -102,15 +102,9 @@ impl PollResult {
         }
     }
 
-    pub fn pop_key(&mut self) -> Key {
-        if self.stack_pointer > 0 {
-            self.stack_pointer -= 1;
-            let key = self.key_stack[self.stack_pointer];
-            key
-        } else {
-            self.exausted = true;
-            self.key_stack[self.stack_pointer]
-        }
+    // retrieves a reference to the list of keys parsed
+    pub fn get_pressed_keys(&self) -> &[Key] {
+        &self.key_stack
     }
 
     pub fn get_num_keys(&self) -> usize {

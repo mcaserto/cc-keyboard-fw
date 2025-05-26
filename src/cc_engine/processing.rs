@@ -6,15 +6,16 @@ use crate::cc_engine::keycodes::CCKeycode;
 
 pub fn process_poll_result(result: &mut matrix::PollResult) -> descriptor::KeyboardReport {
     let mut active_layer = 0;
+    // list of keys we will process
+    let mut storage_index = 0;
+    let mut keys_to_process = [matrix::Key { row: 0, column: 0 }; 10];
 
     // convert the poll results into keycodes
+    let pressed_keys = result.get_pressed_keys();
     let keycode_count = result.get_num_keys();
-    let mut keys = [matrix::Key { row: 0, column: 0 }; 10];
-    let mut storage_index = 0;
 
     // loop through and store our keys but also look for any shifts
-    for store_index in 0..keycode_count {
-        let key = result.pop_key();
+    for key in pressed_keys.iter().take(keycode_count) {
         let keymap_index = (keymap::COLUMNS * key.row) + key.column;
         let keycode = keymap::KEYMAP[active_layer][keymap_index];
 
@@ -26,8 +27,8 @@ pub fn process_poll_result(result: &mut matrix::PollResult) -> descriptor::Keybo
                 // don't add to our list
             }
             _ => {
-                // process the key
-                keys[store_index] = key;
+                // process this key
+                keys_to_process[storage_index] = *key;
                 storage_index += 1;
             }
         }
@@ -37,8 +38,7 @@ pub fn process_poll_result(result: &mut matrix::PollResult) -> descriptor::Keybo
     let mut report = descriptor::KeyboardReport::default();
     let mut keycode_index = 0;
 
-    for index in 0..storage_index {
-        let key = keys[index];
+    for key in keys_to_process.iter_mut().take(storage_index) {
         let keymap_index = (keymap::COLUMNS * key.row) + key.column;
         let keycode = keymap::KEYMAP[active_layer][keymap_index];
 
