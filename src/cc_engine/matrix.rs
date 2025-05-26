@@ -42,8 +42,6 @@ impl<const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<ROW_SIZE, COL_
                         let mut input = Input::new(row, Pull::Down);
                         input.set_schmitt(true);
                         if input.is_high() {
-                            // extrapolate the key from our keymap
-                            // let index = (keymap::COLUMNS * row_index) + col_index;
                             result.push_key(row_index, col_index);
                         }
                     }
@@ -60,8 +58,6 @@ impl<const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<ROW_SIZE, COL_
                         let mut input = Input::new(col, Pull::Down);
                         input.set_schmitt(true);
                         if input.is_high() {
-                            // extrapolate the key from our keymap
-                            // let index = (keymap::COLUMNS * row_index) + col_index;
                             result.push_key(row_index, col_index);
                         }
                     }
