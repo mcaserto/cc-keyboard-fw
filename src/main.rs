@@ -1,7 +1,6 @@
 #![no_std]
 #![no_main]
 
-use embassy_executor::Spawner;
 use embassy_rp::gpio::Pin;
 use panic_probe as _;
 use {defmt_rtt as _, panic_probe as _};
@@ -15,8 +14,8 @@ use cc_engine::matrix;
 
 mod keymap;
 
-#[embassy_executor::main]
-async fn main(spawner: Spawner) {
+#[cortex_m_rt::entry]
+fn main() -> ! {
     let p = embassy_rp::init(Default::default());
 
     // create a key matrix
@@ -44,12 +43,29 @@ async fn main(spawner: Spawner) {
     // create keymap from rows and columns
     let key_matrix = matrix::KeyboardMatrix::new(rows, cols, matrix::DiodeDirection::ColumnToRow);
 
-    // initialize usb tasks
-    usb::initialize_usb_resources(p.USB, &spawner);
+    // spawn tasks onto the desired cores
+    use embassy_executor::Executor;
+    use embassy_rp::multicore;
+    use static_cell::StaticCell;
+    static mut CORE1_STACK: multicore::Stack<4096> = multicore::Stack::new();
+    static EXECUTOR0: StaticCell<Executor> = StaticCell::new();
+    static EXECUTOR1: StaticCell<Executor> = StaticCell::new();
 
-    // start status led task
-    spawner.must_spawn(status::status_light_handler(p.PIN_17, p.PIO0, p.DMA_CH0));
+    // spawn the core 1 tasks (just matrix polling for now)
+    embassy_rp::multicore::spawn_core1(
+        p.CORE1,
+        unsafe { &mut *core::ptr::addr_of_mut!(CORE1_STACK) },
+        move || {
+            let executor1 = EXECUTOR1.init(Executor::new());
+            executor1
+                .run(|spawner| spawner.must_spawn(polling::matrix_polling_handler(key_matrix)));
+        },
+    );
 
-    // start keyboard matrix polling task
-    spawner.must_spawn(polling::matrix_polling_handler(key_matrix));
+    // start the core 0 tasks (just status led and usb handling for now)
+    let executor0 = EXECUTOR0.init(Executor::new());
+    executor0.run(|spawner| {
+        spawner.must_spawn(status::status_light_handler(p.PIN_17, p.PIO0, p.DMA_CH0));
+        usb::initialize_usb_resources(p.USB, &spawner);
+    });
 }
