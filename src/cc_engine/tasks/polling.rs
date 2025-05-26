@@ -17,7 +17,7 @@ pub async fn matrix_polling_handler(
         let mut result = key_matrix.poll().await;
 
         // process
-        let report = cc_engine::polling::process_poll_result(&mut result);
+        let report = cc_engine::processing::process_poll_result(&mut result);
 
         if report != last_report {
             resources::KEYBOARD_REPORT_CHANNEL.send(report).await;
