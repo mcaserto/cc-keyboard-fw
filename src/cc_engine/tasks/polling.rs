@@ -3,8 +3,8 @@ use embassy_time::Timer;
 use crate::cc_engine::{self, matrix};
 use usbd_hid::descriptor;
 // local includes
+use super::resources;
 use crate::keymap;
-use crate::tasks::resources;
 
 // task for polling the keyboard matrix
 #[embassy_executor::task]

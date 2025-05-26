@@ -6,10 +6,9 @@ use embassy_rp::gpio::Pin;
 use panic_probe as _;
 use {defmt_rtt as _, panic_probe as _};
 
-mod tasks;
-use tasks::polling;
-use tasks::status;
-use tasks::usb;
+use cc_engine::tasks::polling;
+use cc_engine::tasks::status;
+use cc_engine::tasks::usb;
 
 mod cc_engine;
 use cc_engine::matrix;

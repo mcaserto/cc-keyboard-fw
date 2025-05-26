@@ -10,7 +10,7 @@ use static_cell::StaticCell;
 use usbd_hid::descriptor::{AsInputReport, KeyboardReport, SerializedDescriptor};
 
 // local includes
-use crate::tasks::resources;
+use super::resources;
 
 embassy_rp::bind_interrupts!(struct Irqs {
     USBCTRL_IRQ => embassy_rp::usb::InterruptHandler<peripherals::USB>;
