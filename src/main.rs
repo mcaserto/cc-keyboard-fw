@@ -1,24 +1,31 @@
 #![no_std]
 #![no_main]
 
+// embassy-rs includes
+use embassy_executor::Executor;
 use embassy_rp::gpio::Pin;
+use embassy_rp::multicore;
+
+// panic handler, logging, etc.
 use panic_probe as _;
+use static_cell::StaticCell;
 use {defmt_rtt as _, panic_probe as _};
 
+// include code from the cc_engine
+mod cc_engine;
+use cc_engine::matrix;
 use cc_engine::tasks::polling;
 use cc_engine::tasks::status;
 use cc_engine::tasks::usb;
 
-mod cc_engine;
-use cc_engine::matrix;
-
+// our keyboard definitions
 mod keymap;
 
 #[cortex_m_rt::entry]
 fn main() -> ! {
     let p = embassy_rp::init(Default::default());
 
-    // create a key matrix
+    // create a key matrix ( ideally I want this to be set up in the keymap.rs file so everything is configured there )
     let rows = [
         p.PIN_0.degrade(),
         p.PIN_1.degrade(),
@@ -44,9 +51,6 @@ fn main() -> ! {
     let key_matrix = matrix::KeyboardMatrix::new(rows, cols, matrix::DiodeDirection::ColumnToRow);
 
     // spawn tasks onto the desired cores
-    use embassy_executor::Executor;
-    use embassy_rp::multicore;
-    use static_cell::StaticCell;
     static mut CORE1_STACK: multicore::Stack<4096> = multicore::Stack::new();
     static EXECUTOR0: StaticCell<Executor> = StaticCell::new();
     static EXECUTOR1: StaticCell<Executor> = StaticCell::new();
