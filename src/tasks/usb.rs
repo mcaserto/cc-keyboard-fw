@@ -2,11 +2,12 @@
 use core::sync::atomic::{AtomicBool, Ordering};
 use defmt::*;
 use embassy_executor::Spawner;
+use embassy_futures::select::Either4;
 use embassy_rp::{peripherals, usb};
 use embassy_usb::class::hid;
 use embassy_usb::control;
 use static_cell::StaticCell;
-use usbd_hid::descriptor::{KeyboardReport, SerializedDescriptor};
+use usbd_hid::descriptor::{AsInputReport, KeyboardReport, SerializedDescriptor};
 
 // local includes
 use crate::tasks::resources;
@@ -81,14 +82,40 @@ async fn usb_out_handler(
     loop {
         // wait for a new keyboard report
         info!("Waiting keyboard report");
-        let report = resources::REPORT_CHANNEL.receive().await;
+        let report = embassy_futures::select::select4(
+            resources::KEYBOARD_REPORT_CHANNEL.receive(),
+            resources::MOUSE_REPORT_CHANNEL.receive(),
+            resources::MEDIA_REPORT_CHANNEL.receive(),
+            resources::SYSTEM_CONTROL_REPORT_CHANNEL.receive(),
+        )
+        .await;
 
-        match writer.write_serialize(&report).await {
-            Ok(()) => {}
-            Err(e) => warn!("Failed to send report: {:?}", e),
-        };
+        match report {
+            Either4::First(keyboard_report) => {
+                write_report(keyboard_report, &mut writer).await;
+            }
+            Either4::Second(mouse_report) => {
+                write_report(mouse_report, &mut writer).await;
+            }
+            Either4::Third(media_report) => {
+                write_report(media_report, &mut writer).await;
+            }
+            Either4::Fourth(system_control_report) => {
+                write_report(system_control_report, &mut writer).await;
+            }
+        }
         info!("Sent report");
     }
+}
+
+async fn write_report<T: AsInputReport>(
+    report: T,
+    writer: &mut hid::HidWriter<'static, usb::Driver<'static, peripherals::USB>, 8>,
+) {
+    match writer.write_serialize(&report).await {
+        Ok(()) => {}
+        Err(e) => warn!("Failed to send report: {:?}", e),
+    };
 }
 
 #[embassy_executor::task]

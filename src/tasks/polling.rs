@@ -20,7 +20,7 @@ pub async fn matrix_polling_handler(
         let report = cc_engine::polling::process_poll_result(&mut result);
 
         if report != last_report {
-            resources::REPORT_CHANNEL.send(report).await;
+            resources::KEYBOARD_REPORT_CHANNEL.send(report).await;
             last_report = report;
         }
 
