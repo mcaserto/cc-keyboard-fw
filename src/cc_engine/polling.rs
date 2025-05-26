@@ -49,9 +49,10 @@ pub fn process_poll_result(result: &mut matrix::PollResult) -> descriptor::Keybo
             CCKeycode::CC_LAY(_layer) => {
                 // do nothing for now
             }
-            CCKeycode::CC_CTRL => report.modifier |= u8::from(keycode),
-            CCKeycode::CC_SHFT => report.modifier |= u8::from(keycode),
-            CCKeycode::CC__ALT => report.modifier |= u8::from(keycode),
+            CCKeycode::CC_CTRL => report.modifier |= 0x01,
+            CCKeycode::CC_SHFT => report.modifier |= 0x02,
+            CCKeycode::CC__ALT => report.modifier |= 0x04,
+            CCKeycode::CC__GUI => report.modifier |= 0x08,
             CCKeycode::CC_PASS => {
                 if active_layer > 0 {
                     let keycode = keymap::KEYMAP[active_layer - 1][keymap_index];
