@@ -1,6 +1,7 @@
 use embassy_time::Timer;
 
 use crate::cc_engine::{self, matrix};
+use usbd_hid::descriptor;
 // local includes
 use crate::keymap;
 use crate::tasks::resources;
@@ -11,12 +12,17 @@ pub async fn matrix_polling_handler(
     mut key_matrix: matrix::KeyboardMatrix<{ keymap::ROWS }, { keymap::COLUMNS }>,
 ) {
     // loop
+    let mut last_report = descriptor::KeyboardReport::default();
     loop {
-        let mut result = key_matrix.poll();
+        let mut result = key_matrix.poll().await;
 
         // process
         let report = cc_engine::polling::process_poll_result(&mut result);
-        resources::REPORT_CHANNEL.send(report).await;
+
+        if report != last_report {
+            resources::REPORT_CHANNEL.send(report).await;
+            last_report = report;
+        }
 
         Timer::after_millis(1).await;
     }

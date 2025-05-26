@@ -1,4 +1,5 @@
 use embassy_rp::gpio::{AnyPin, Input, Level, Output, Pull};
+use embassy_time::Timer;
 
 #[allow(dead_code)]
 pub enum DiodeDirection {
@@ -26,7 +27,7 @@ impl<const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<ROW_SIZE, COL_
     }
 
     // polls the matrix and returns up to 10 pressed keys
-    pub fn poll(&mut self) -> PollResult {
+    pub async fn poll(&mut self) -> PollResult {
         let mut result = PollResult::new();
 
         // poll the key matrix
@@ -36,11 +37,13 @@ impl<const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<ROW_SIZE, COL_
                 for (col_index, col) in &mut self.columns.iter_mut().enumerate() {
                     // set the column high, should go back to low once this goes out of scope on the next iteration
                     let _output = Output::new(col, Level::High);
+                    Timer::after_millis(1).await;
 
                     // poll the rows
                     for (row_index, row) in &mut self.rows.iter_mut().enumerate() {
                         let mut input = Input::new(row, Pull::Down);
                         input.set_schmitt(true);
+                        Timer::after_millis(1).await;
                         if input.is_high() {
                             result.push_key(row_index, col_index);
                         }
@@ -52,11 +55,13 @@ impl<const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<ROW_SIZE, COL_
                 for (row_index, row) in &mut self.rows.iter_mut().enumerate() {
                     // set the row high, should go back to low once this goes out of scope on the next iteration
                     let _output = Output::new(row, Level::High);
+                    Timer::after_millis(1).await;
 
                     // poll the columns
                     for (col_index, col) in &mut self.columns.iter_mut().enumerate() {
                         let mut input = Input::new(col, Pull::Down);
                         input.set_schmitt(true);
+                        Timer::after_millis(1).await;
                         if input.is_high() {
                             result.push_key(row_index, col_index);
                         }

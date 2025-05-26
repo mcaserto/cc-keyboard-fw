@@ -52,6 +52,13 @@ pub fn process_poll_result(result: &mut matrix::PollResult) -> descriptor::Keybo
             CCKeycode::CC_CTRL => report.modifier |= u8::from(keycode),
             CCKeycode::CC_SHFT => report.modifier |= u8::from(keycode),
             CCKeycode::CC__ALT => report.modifier |= u8::from(keycode),
+            CCKeycode::CC_PASS => {
+                if active_layer > 0 {
+                    let keycode = keymap::KEYMAP[active_layer - 1][keymap_index];
+                    report.keycodes[keycode_index] = u8::from(keycode);
+                    keycode_index += 1;
+                }
+            }
             _ => {
                 report.keycodes[keycode_index] = u8::from(keycode);
                 keycode_index += 1;
