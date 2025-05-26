@@ -1,58 +1,102 @@
 use embassy_rp::gpio::{AnyPin, Input, Level, Output, Pull};
+use heapless::Vec;
+use usbd_hid::descriptor::generator_prelude::Serialize;
+
+use super::keycodes::{self, CCKeycode};
+use crate::keymap::{self, KEYMAP};
 
 #[allow(dead_code)]
 pub enum DiodeDirection {
     ColumnToRow,
     RowToColumn,
 }
+
+#[derive(Copy, Clone, PartialEq)]
+struct KeyIndex {
+    pub keycode: CCKeycode,
+    pub keymap_index: usize,
+}
+pub struct KeyProcessor {
+    keycodes: [KeyIndex; keymap::ROWS * keymap::COLUMNS],
+    index: usize,
+    processing_layer: usize,
+}
+
+impl KeyProcessor {
+    pub fn new() -> Self {
+        Self {
+            keycodes: [KeyIndex {
+                keycode: CCKeycode::CC_NONE,
+                keymap_index: 0,
+            }; keymap::ROWS * keymap::COLUMNS],
+            index: 0,
+            processing_layer: 0,
+        }
+    }
+
+    fn reset(&mut self) {
+        self.index = 0;
+    }
+
+    fn push_key(&mut self, key: &CCKeycode, index: usize) {
+        let key_index = KeyIndex {
+            keycode: *key,
+            keymap_index: index,
+        };
+
+        if !self.keycodes.contains(&key_index) {
+            // add the keycode
+            self.keycodes[self.index] = key_index;
+            self.index += 1;
+        }
+    }
+
+    pub fn pop_key(&mut self) -> CCKeycode {
+        // grab the current index
+        let mut key = self.keycodes[self.index];
+
+        // convert the value on the current layer
+        match key.keycode {
+            // special case for a passthrough key
+            CCKeycode::CC_PASS => key.keycode = KEYMAP[self.processing_layer - 1][key.keymap_index],
+            _ => key.keycode = KEYMAP[self.processing_layer][key.keymap_index],
+        }
+
+        // decrement the index
+        self.index -= 1;
+
+        // return the key
+        key.keycode
+    }
+
+    pub fn get_keycode_count(&self) -> usize {
+        self.index
+    }
+
+    fn process(&mut self) {
+        let mut current_layer: usize = 0;
+        for index in 0..self.index {
+            match self.keycodes[index].keycode {
+                CCKeycode::CC_LAY(layer) => {
+                    current_layer = layer;
+                    self.keycodes[index].keycode = CCKeycode::CC_NONE;
+                }
+                _ => {
+                    continue;
+                }
+            }
+        }
+
+        self.processing_layer = current_layer;
+    }
+}
+
 pub struct KeyMatrix<const ROW_SIZE: usize, const COL_SIZE: usize> {
     rows: [AnyPin; ROW_SIZE],
     columns: [AnyPin; COL_SIZE],
     diode_direction: DiodeDirection,
-}
-
-#[derive(Clone, Copy)]
-pub struct PressedKey {
-    row: u16,
-    column: u16,
-}
-
-pub struct PollResult {
-    // results can be size 10 max
-    index: usize,
-    results: [PressedKey; 10],
-}
-
-impl PollResult {
-    fn new() -> Self {
-        PollResult {
-            index: 0,
-            results: [PressedKey { row: 0, column: 0 }; 10],
-        }
-    }
-
-    fn push_result(&mut self, row: u16, col: u16) {
-        if self.index == 10 {
-            return;
-        }
-        self.results[self.index].row = row;
-        self.results[self.index].column = col;
-        self.index += 1;
-    }
-
-    pub fn pop_result(&mut self) -> PressedKey {
-        if self.index == 0 {
-            return self.results[0];
-        }
-
-        let res = self.results[self.index];
-        self.index -= 1;
-        res
-    }
-
-    pub fn get_result_count(&self) -> usize {
-        self.index
-    }
+    pressed_keys: [CCKeycode; keymap::ROWS * keymap::COLUMNS],
+    active_layer: usize,
 }
 
 impl<const ROW_SIZE: usize, const COL_SIZE: usize> KeyMatrix<ROW_SIZE, COL_SIZE> {
@@ -65,12 +109,14 @@ impl<const ROW_SIZE: usize, const COL_SIZE: usize> KeyMatrix<ROW_SIZE, COL_SIZE>
             columns,
             rows,
             diode_direction,
+            pressed_keys: [CCKeycode::CC_NONE; keymap::ROWS * keymap::COLUMNS],
+            active_layer: 0,
         }
     }
 
     // polls the matrix and returns up to 10 pressed keys
-    pub fn poll(&mut self) -> PollResult {
-        let mut result = PollResult::new();
+    pub fn poll(&mut self, processor: &mut KeyProcessor) {
+        processor.reset();
 
         // poll the key matrix
         match self.diode_direction {
@@ -85,7 +131,10 @@ impl<const ROW_SIZE: usize, const COL_SIZE: usize> KeyMatrix<ROW_SIZE, COL_SIZE>
                         let mut input = Input::new(row, Pull::None);
                         input.set_schmitt(true);
                         if input.is_high() {
-                            result.push_result(row_index as u16, col_index as u16);
+                            // extrapolate the key from our keymap
+                            let index = (keymap::COLUMNS * row_index) + col_index;
+                            let key = &KEYMAP[self.active_layer][index];
+                            processor.push_key(key, index);
                         }
                     }
                 }
@@ -101,13 +150,17 @@ impl<const ROW_SIZE: usize, const COL_SIZE: usize> KeyMatrix<ROW_SIZE, COL_SIZE>
                         let mut input = Input::new(col, Pull::None);
                         input.set_schmitt(true);
                         if input.is_high() {
-                            result.push_result(row_index as u16, col_index as u16);
+                            // extrapolate the key from our keymap
+                            let index = (keymap::COLUMNS * row_index) + col_index;
+                            let key = &KEYMAP[self.active_layer][index];
+                            processor.push_key(key, index);
                         }
                     }
                 }
             }
         };
 
-        result
+        // process the keys to do any conversions needed before other code will use them (such as layer shifts)
+        processor.process();
     }
 }

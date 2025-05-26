@@ -12,7 +12,7 @@ use tasks::status;
 use tasks::usb;
 
 mod cc_engine;
-use cc_engine::key_matrix;
+use cc_engine::matrix;
 
 mod keymap;
 
@@ -43,8 +43,7 @@ async fn main(spawner: Spawner) {
     ];
 
     // create keymap from rows and columns
-    let key_matrix =
-        key_matrix::KeyMatrix::new(rows, cols, key_matrix::DiodeDirection::ColumnToRow);
+    let key_matrix = matrix::KeyboardMatrix::new(rows, cols, matrix::DiodeDirection::ColumnToRow);
 
     // initialize usb tasks
     usb::initialize_usb_resources(p.USB, &spawner);
