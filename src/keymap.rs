@@ -1,6 +1,6 @@
 // File: keymap.rs
 // Description: Contains information about the keyboard keymap
-use crate::cc_engine::keycodes::{CCKeycode, CCKeycode::*};
+use crate::cc_engine::keycodes::CCKeycode::{self, *};
 
 pub const ROWS: usize = 4;
 pub const COLUMNS: usize = 12;
@@ -20,14 +20,26 @@ pub const KEYMAP: CCKeymap = [
 ],
 [
     CC____1, CC____2, CC____3, CC____4, CC____5, CC____6, CC____7, CC____8,  CC____9, CC____0, CC_PASS, CC_PASS,
-    CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS,  CC_PASS, CC_PASS, CC_PASS, CC_PASS,
-    CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS,  CC_PASS, CC_PASS, CC_PASS, CC_PASS,
-    CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS,  CC_PASS, CC_PASS, CC_PASS, CC_PASS,
+    CC_PASS, CC_FN01, CC_FN02, CC_FN03, CC_FN04, CC_FN05, CC_FN06, CC_PASS,  CC_PASS, CC_PASS, CC_PASS, CC_PASS,
+    CC_PASS, CC_FN07, CC_FN08, CC_FN09, CC_FN10, CC_FN11, CC_FN12, CC_PASS,  CC_PASS, CC_PASS, CC_PASS, CC_PASS,
+    CC_MAC(m1), CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS,  CC_PASS, CC_PASS, CC_PASS, CC_PASS,
 ],
 [
     CC____1, CC____2, CC____3, CC____4, CC____5, CC____6, CC____7, CC____8,  CC____9, CC____0, CC_PASS, CC_PASS,
     CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS,  CC_PASS, CC_PASS, CC_PASS, CC_PASS,
     CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS,  CC_PASS, CC_PASS, CC_PASS, CC_PASS,
-    CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS,  CC_PASS, CC_PASS, CC_PASS, CC_PASS,
+    CC_MAC(m2), CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS, CC_PASS,  CC_PASS, CC_PASS, CC_PASS, CC_PASS,
 ]
 ];
+
+fn m1() {
+    // do stuff
+    use super::cc_engine::macros::macro_helpers;
+    macro_helpers::send_string("HELLO there");
+}
+
+fn m2() {
+    // do stuff
+    use super::cc_engine::macros::macro_helpers;
+    macro_helpers::send_string("TherE heLLo");
+}

@@ -79,9 +79,21 @@ pub enum CCKeycode {
     CC__GUI = 0xE3,
 
     // custom codes for CC Firmware
-    CC_NONE,
+    CC_NONE,       // no action
     CC_LAY(usize), // layer shift key
-    CC_PASS,
+    CC_PASS,       // pass-through
+    CC_MAC(fn()),  // macro
+}
+
+#[repr(u8)]
+#[allow(dead_code)]
+#[allow(non_camel_case_types)]
+#[derive(Copy, Clone, PartialEq)]
+pub enum CCModifier {
+    CC_CTRL = 0x01,
+    CC_SHFT = 0x02,
+    CC_ALT = 0x04,
+    CC_GUI = 0x08,
 }
 
 impl From<u8> for CCKeycode {
@@ -242,6 +254,77 @@ impl From<CCKeycode> for u8 {
             CCKeycode::CC__GUI => 0xE3,
 
             _ => 0x04, // default to A I guess?
+        }
+    }
+}
+
+impl From<char> for CCKeycode {
+    fn from(value: char) -> Self {
+        match value {
+            'a' => CCKeycode::CC____A,
+            'A' => CCKeycode::CC____A,
+            'b' => CCKeycode::CC____B,
+            'B' => CCKeycode::CC____B,
+            'c' => CCKeycode::CC____C,
+            'C' => CCKeycode::CC____C,
+            'd' => CCKeycode::CC____D,
+            'D' => CCKeycode::CC____D,
+            'e' => CCKeycode::CC____E,
+            'E' => CCKeycode::CC____E,
+            'f' => CCKeycode::CC____F,
+            'F' => CCKeycode::CC____F,
+            'g' => CCKeycode::CC____G,
+            'G' => CCKeycode::CC____G,
+            'h' => CCKeycode::CC____H,
+            'H' => CCKeycode::CC____H,
+            'i' => CCKeycode::CC____I,
+            'I' => CCKeycode::CC____I,
+            'j' => CCKeycode::CC____J,
+            'J' => CCKeycode::CC____J,
+            'k' => CCKeycode::CC____K,
+            'K' => CCKeycode::CC____K,
+            'l' => CCKeycode::CC____L,
+            'L' => CCKeycode::CC____L,
+            'm' => CCKeycode::CC____M,
+            'M' => CCKeycode::CC____M,
+            'n' => CCKeycode::CC____N,
+            'N' => CCKeycode::CC____N,
+            'o' => CCKeycode::CC____O,
+            'O' => CCKeycode::CC____O,
+            'p' => CCKeycode::CC____P,
+            'P' => CCKeycode::CC____P,
+            'q' => CCKeycode::CC____Q,
+            'Q' => CCKeycode::CC____Q,
+            'r' => CCKeycode::CC____R,
+            'R' => CCKeycode::CC____R,
+            's' => CCKeycode::CC____S,
+            'S' => CCKeycode::CC____S,
+            't' => CCKeycode::CC____T,
+            'T' => CCKeycode::CC____T,
+            'u' => CCKeycode::CC____U,
+            'U' => CCKeycode::CC____U,
+            'v' => CCKeycode::CC____V,
+            'V' => CCKeycode::CC____V,
+            'w' => CCKeycode::CC____W,
+            'W' => CCKeycode::CC____W,
+            'x' => CCKeycode::CC____X,
+            'X' => CCKeycode::CC____X,
+            'y' => CCKeycode::CC____Y,
+            'Y' => CCKeycode::CC____Y,
+            'z' => CCKeycode::CC____Z,
+            'Z' => CCKeycode::CC____Z,
+            '0' => CCKeycode::CC____0,
+            '1' => CCKeycode::CC____1,
+            '2' => CCKeycode::CC____2,
+            '3' => CCKeycode::CC____3,
+            '4' => CCKeycode::CC____4,
+            '5' => CCKeycode::CC____5,
+            '6' => CCKeycode::CC____6,
+            '7' => CCKeycode::CC____7,
+            '8' => CCKeycode::CC____8,
+            '9' => CCKeycode::CC____9,
+            ' ' => CCKeycode::CC_SPAC,
+            _ => CCKeycode::CC__ESC,
         }
     }
 }

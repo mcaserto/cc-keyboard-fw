@@ -52,7 +52,7 @@ pub fn initialize_usb_resources(usb_peripheral: peripherals::USB, spawner: &Spaw
     let config = embassy_usb::class::hid::Config {
         report_descriptor: KeyboardReport::desc(),
         request_handler: None,
-        poll_ms: 60,
+        poll_ms: 1,
         max_packet_size: 64,
     };
 

@@ -1,7 +1,9 @@
 use crate::cc_engine::matrix;
 use crate::keymap;
+use embassy_time::Instant;
 use usbd_hid::descriptor;
 
+use super::keycodes::CCModifier;
 use crate::cc_engine::keycodes::CCKeycode;
 
 pub fn process_poll_result(result: &mut matrix::PollResult) -> descriptor::KeyboardReport {
@@ -49,10 +51,17 @@ pub fn process_poll_result(result: &mut matrix::PollResult) -> descriptor::Keybo
             CCKeycode::CC_LAY(_layer) => {
                 // do nothing for now
             }
-            CCKeycode::CC_CTRL => report.modifier |= 0x01,
-            CCKeycode::CC_SHFT => report.modifier |= 0x02,
-            CCKeycode::CC__ALT => report.modifier |= 0x04,
-            CCKeycode::CC__GUI => report.modifier |= 0x08,
+            CCKeycode::CC_MAC(callback) => {
+                // call the macro
+                callback();
+                // TODO! super hacky debounce for now, add real debounce for all keys
+                let start_time = Instant::now();
+                while (Instant::now() - start_time).as_millis() <= 200 {}
+            }
+            CCKeycode::CC_CTRL => report.modifier |= CCModifier::CC_CTRL as u8,
+            CCKeycode::CC_SHFT => report.modifier |= CCModifier::CC_SHFT as u8,
+            CCKeycode::CC__ALT => report.modifier |= CCModifier::CC_ALT as u8,
+            CCKeycode::CC__GUI => report.modifier |= CCModifier::CC_GUI as u8,
             CCKeycode::CC_PASS => {
                 if active_layer > 0 {
                     let keycode = keymap::KEYMAP[active_layer - 1][keymap_index];

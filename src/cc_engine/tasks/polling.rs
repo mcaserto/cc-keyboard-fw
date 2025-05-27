@@ -1,5 +1,3 @@
-use embassy_time::Timer;
-
 use crate::cc_engine::{self, matrix};
 use usbd_hid::descriptor;
 // local includes
@@ -23,7 +21,5 @@ pub async fn matrix_polling_handler(
             resources::KEYBOARD_REPORT_CHANNEL.send(report).await;
             last_report = report;
         }
-
-        Timer::after_millis(1).await;
     }
 }
