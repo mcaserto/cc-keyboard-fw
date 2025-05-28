@@ -16,7 +16,7 @@ pub const KEYMAP: CCKeymap = [
     CC__TAB, CC____Q, CC____W, CC____E, CC____R,    CC____T, CC____Y, CC____U,    CC____I, CC____O, CC____P, CC_BKSP,
     CC_BKSP, CC____A, CC____S, CC____D, CC____F,    CC____G, CC____H, CC____J,    CC____K, CC____L, CC_SCLN, CC_QUOT,
     CC_SHFT, CC____Z, CC____X, CC____C, CC____V,    CC____B, CC____N, CC____M,    CC_COMA, CC__PER, CC_SLSH, CC__RET,
-    CC__ESC, CC_CTRL, CC__ALT, CC__GUI, CC_LAY(1),  CC_SPAC, CC_SPAC, CC_LAY(2),  CC_LFTA, CC_DWNA, CC_RGTA, CC__UPA,
+    CC__ESC, CC_CTRL, CC__ALT, CC__GUI, CC_LAY(1),  CC_SPAC, CC_SPAC, CC_LAY(2),  CC_LEFT, CC_DOWN, CC_RIGHT, CC__UP,
 ],
 [
     CC____1, CC____2, CC____3, CC____4, CC____5, CC____6, CC____7, CC____8,  CC____9, CC____0, CC_PASS, CC_PASS,
@@ -34,12 +34,17 @@ pub const KEYMAP: CCKeymap = [
 
 fn m1() {
     // do stuff
-    use super::cc_engine::macros::macro_helpers;
-    macro_helpers::send_string("HELLO there");
+    use super::cc_engine::macros;
+    macros::send_string("git status");
+    macros::send_keycode(&CCKeycode::CC__RET);
 }
 
 fn m2() {
     // do stuff
-    use super::cc_engine::macros::macro_helpers;
-    macro_helpers::send_string("TherE heLLo");
+    use super::cc_engine::macros;
+    // add c comment to current line and then go to the end of it
+    macros::send_keycode(&CCKeycode::CC_HOME);
+    macros::send_keycode(&CCKeycode::CC_SLSH);
+    macros::send_keycode(&CCKeycode::CC_SLSH);
+    macros::send_keycode(&CCKeycode::CC_END);
 }

@@ -58,10 +58,10 @@ pub fn process_poll_result(result: &mut matrix::PollResult) -> descriptor::Keybo
                 let start_time = Instant::now();
                 while (Instant::now() - start_time).as_millis() <= 200 {}
             }
-            CCKeycode::CC_CTRL => report.modifier |= CCModifier::CC_CTRL as u8,
-            CCKeycode::CC_SHFT => report.modifier |= CCModifier::CC_SHFT as u8,
-            CCKeycode::CC__ALT => report.modifier |= CCModifier::CC_ALT as u8,
-            CCKeycode::CC__GUI => report.modifier |= CCModifier::CC_GUI as u8,
+            CCKeycode::CC_CTRL => report.modifier |= CCModifier::CC_LEFT_CTRL as u8,
+            CCKeycode::CC_SHFT => report.modifier |= CCModifier::CC_RIGHT_SHIFT as u8,
+            CCKeycode::CC__ALT => report.modifier |= CCModifier::CC_LEFT_ALT as u8,
+            CCKeycode::CC__GUI => report.modifier |= CCModifier::CC_LEFT_GUI as u8,
             CCKeycode::CC_PASS => {
                 if active_layer > 0 {
                     let keycode = keymap::KEYMAP[active_layer - 1][keymap_index];
