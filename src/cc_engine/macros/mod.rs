@@ -9,7 +9,7 @@ pub fn send_string(str: &str) {
     let mut report = KeyboardReport::default();
     for character in str.chars() {
         if character.is_uppercase() {
-            report.modifier |= keycodes::CCModifier::CC_LEFT_SHFT as u8;
+            report.modifier |= keycodes::CCModifier::LEFT_SHFT as u8;
             let _ = resources::KEYBOARD_REPORT_CHANNEL.try_send(report);
         } else {
             report.modifier = 0;

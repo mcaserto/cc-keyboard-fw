@@ -22,10 +22,10 @@ pub fn process_poll_result(result: &mut matrix::PollResult) -> descriptor::Keybo
         let keycode = keymap::KEYMAP[active_layer][keymap_index];
 
         match keycode {
-            CCKeycode::CC_LAY(commanded_layer) => {
+            CCKeycode::LAYER(commanded_layer) => {
                 active_layer = commanded_layer;
             }
-            CCKeycode::CC_NONE => {
+            CCKeycode::_______ => {
                 // don't add to our list
             }
             _ => {
@@ -45,24 +45,24 @@ pub fn process_poll_result(result: &mut matrix::PollResult) -> descriptor::Keybo
         let keycode = keymap::KEYMAP[active_layer][keymap_index];
 
         match keycode {
-            CCKeycode::CC_NONE => {
+            CCKeycode::_______ => {
                 // do nothing for now
             }
-            CCKeycode::CC_LAY(_layer) => {
+            CCKeycode::LAYER(_layer) => {
                 // do nothing for now
             }
-            CCKeycode::CC_MAC(callback) => {
+            CCKeycode::MACRO(callback) => {
                 // call the macro
                 callback();
                 // TODO! super hacky debounce for now, add real debounce for all keys
                 let start_time = Instant::now();
                 while (Instant::now() - start_time).as_millis() <= 200 {}
             }
-            CCKeycode::CC_CTRL => report.modifier |= CCModifier::CC_LEFT_CTRL as u8,
-            CCKeycode::CC_SHFT => report.modifier |= CCModifier::CC_RIGHT_SHIFT as u8,
-            CCKeycode::CC__ALT => report.modifier |= CCModifier::CC_LEFT_ALT as u8,
-            CCKeycode::CC__GUI => report.modifier |= CCModifier::CC_LEFT_GUI as u8,
-            CCKeycode::CC_PASS => {
+            CCKeycode::L__CTRL => report.modifier |= CCModifier::LEFT_CTRL as u8,
+            CCKeycode::L_SHIFT => report.modifier |= CCModifier::LEFT_SHFT as u8,
+            CCKeycode::L___ALT => report.modifier |= CCModifier::LEFT_ALT as u8,
+            CCKeycode::L___GUI => report.modifier |= CCModifier::LEFT_GUI as u8,
+            CCKeycode::PASSTHR => {
                 if active_layer > 0 {
                     let keycode = keymap::KEYMAP[active_layer - 1][keymap_index];
                     report.keycodes[keycode_index] = u8::from(keycode);
