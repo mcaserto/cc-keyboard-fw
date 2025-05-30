@@ -94,7 +94,7 @@ pub fn process_poll_result(result: &[Key]) -> descriptor::KeyboardReport {
                     _ => {
                         // process the keycode
                         if index < 6 {
-                            report.keycodes[index] = u8::from(*keycode);
+                            report.keycodes[index] = u8::from(keycode);
                             index += 1;
                         }
                     }

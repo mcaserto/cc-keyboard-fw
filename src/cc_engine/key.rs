@@ -57,7 +57,7 @@ impl Key {
                 CCKeycode::LAYER(commanded_layer) => {
                     // set the layer
                     *layer = usize::from(commanded_layer);
-                    None
+                    Some(CCKeycode::LAYER(commanded_layer))
                 }
                 CCKeycode::PASSTHR => {
                     if *layer > 0 {
@@ -91,16 +91,38 @@ impl Key {
                 }
                 _ => Some(keycode),
             };
-        } else {
+        } else if previous_pressed != self.pressed && self.pressed == KeyState::Released {
             // transitioning from pressed to released
             self.timestamp_released = Instant::now();
-            self.keycode = None;
 
             // do keycode specific actions
+            if let Some(keycode) = self.keycode {
+                match keycode {
+                    // filtering out custom keycodes that should never be sent to a computer
+                    CCKeycode::LAYER(_commanded_layer) => {
+                        // return our layer to the base layer
+                        *layer = 0;
+                    }
+                    _ => (),
+                }
+            }
+
+            self.keycode = None
         }
     }
 
-    pub fn get_keycode(&self) -> &Option<CCKeycode> {
-        &self.keycode
+    pub fn get_keycode(&self) -> Option<CCKeycode> {
+        if let Some(keycode) = self.keycode {
+            match keycode {
+                // filtering out custom keycodes that should never be sent to a computer
+                CCKeycode::LAYER(_commanded_layer) => None,
+                CCKeycode::PASSTHR => None,
+                CCKeycode::MACRO(_callback) => None,
+                CCKeycode::MOD(_mod, _keycode) => None,
+                _ => self.keycode,
+            }
+        } else {
+            None
+        }
     }
 }

@@ -70,7 +70,7 @@ impl<'a, const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<'a, ROW_SI
                 // poll by settign columns and readings rows
                 for (col_index, col) in &mut self.columns.iter_mut().enumerate() {
                     col.set_high();
-                    cortex_m::asm::delay(100);
+                    cortex_m::asm::delay(50);
 
                     // poll the rows
                     for (row_index, row) in &mut self.rows.iter_mut().enumerate() {
@@ -83,9 +83,8 @@ impl<'a, const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<'a, ROW_SI
             DiodeDirection::RowToColumn => {
                 // poll by setting rows and reading columns
                 for (row_index, row) in &mut self.rows.iter_mut().enumerate() {
-                    // set the row high, should go back to low once this goes out of scope on the next iteration
                     row.set_high();
-                    cortex_m::asm::delay(100);
+                    cortex_m::asm::delay(50);
 
                     // poll the columns
                     for (col_index, col) in &mut self.columns.iter_mut().enumerate() {
