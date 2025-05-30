@@ -2,13 +2,13 @@
 // Description: Contains information about the keyboard keymap
 use crate::cc_engine::keycodes::CCKeycode::{self, *};
 
-pub const ROWS: usize = 4;
-pub const COLUMNS: usize = 12;
-pub const NUM_LAYERS: usize = 3;
+pub const ROWS: u8 = 4;
+pub const COLUMNS: u8 = 12;
+pub const NUM_LAYERS: u8 = 3;
 
 #[allow(non_camel_case_types)]
-type CCLayer = [CCKeycode; ROWS * COLUMNS];
-type CCKeymap = [CCLayer; NUM_LAYERS];
+type CCLayer = [CCKeycode; ROWS as usize * COLUMNS as usize];
+type CCKeymap = [CCLayer; NUM_LAYERS as usize];
 
 #[rustfmt::skip]
 pub const KEYMAP: CCKeymap = [

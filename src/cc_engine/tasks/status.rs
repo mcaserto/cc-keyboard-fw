@@ -7,6 +7,8 @@ use embassy_rp::{
 };
 use embassy_time::Timer;
 
+use crate::cc_engine::tasks::resources::{self, StatusCode};
+
 bind_interrupts!(struct Irqs {
     PIO0_IRQ_0 => InterruptHandler<PIO0>;
 });
@@ -26,8 +28,15 @@ pub async fn status_light_handler(status_led: peripherals::PIN_17, pio: PIO0, dm
     // loop
     let mut count: u32 = 0;
     let mut color = smart_leds::RGB8::new(0, 0, 0);
+    ws2812.write(&[color]).await;
+
     loop {
-        // // blink led
+        // let color = match resources::STATUS_SIGNAL.wait().await {
+        //     StatusCode::Error => smart_leds::RGB8::new(30, 0, 0),
+        //     StatusCode::Warning => smart_leds::RGB8 { r: 30, g: 30, b: 0 },
+        // };
+
+        // blink led
         if (count % 2) != 0 {
             color.r = 30;
             color.g = 0;

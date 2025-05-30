@@ -1,25 +1,29 @@
 use crate::cc_engine::{self, matrix};
-use usbd_hid::descriptor;
-// local includes
+use embassy_time::Timer;
+use usbd_hid::descriptor::{self, KeyboardReport};
+
+// crate includes
 use super::resources;
 use crate::keymap;
 
 // task for polling the keyboard matrix
 #[embassy_executor::task]
 pub async fn matrix_polling_handler(
-    mut key_matrix: matrix::KeyboardMatrix<{ keymap::ROWS }, { keymap::COLUMNS }>,
+    mut key_matrix: matrix::KeyboardMatrix<
+        'static,
+        { keymap::ROWS as usize },
+        { keymap::COLUMNS as usize },
+    >,
 ) {
     // loop
-    let mut last_report = descriptor::KeyboardReport::default();
+    let mut last_report = KeyboardReport::default();
     loop {
-        let mut result = key_matrix.poll().await;
+        let result = key_matrix.poll();
+        let report = cc_engine::processing::process_poll_result(result);
 
-        // process
-        let report = cc_engine::processing::process_poll_result(&mut result);
-
-        if report != last_report {
-            resources::KEYBOARD_REPORT_CHANNEL.send(report).await;
-            last_report = report;
-        }
+        // if last_report != report {
+        resources::KEYBOARD_REPORT_CHANNEL.send(report).await;
+        // }
+        Timer::after_millis(1).await;
     }
 }

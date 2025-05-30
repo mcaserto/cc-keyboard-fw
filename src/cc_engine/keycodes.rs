@@ -89,9 +89,10 @@ pub enum CCKeycode {
     L___GUI = 0xE3,
 
     // custom codes for CC Firmware
-    LAYER(usize), // layer shift key
-    PASSTHR,      // pass-through
-    MACRO(fn()),  // macro
+    LAYER(u8),   // layer shift key
+    PASSTHR,     // pass-through
+    MACRO(fn()), // macro
+    MOD(CCModifier, u8),
 }
 
 #[repr(u8)]
@@ -99,14 +100,14 @@ pub enum CCKeycode {
 #[allow(non_camel_case_types)]
 #[derive(Copy, Clone, PartialEq)]
 pub enum CCModifier {
-    LEFT_CTRL = 0x01,
-    LEFT_SHFT = 0x02,
-    LEFT_ALT = 0x04,
-    LEFT_GUI = 0x08,
-    RIGHT_CTRL = 0x10,
-    RIGHT_SHIFT = 0x20,
-    RIGHT_ALT = 0x40,
-    RIGHT_GUI = 0x80,
+    L_CTRL = 0x01,
+    L_SHFT = 0x02,
+    L_ALT = 0x04,
+    L_GUI = 0x08,
+    R_CTRL = 0x10,
+    R_SHIFT = 0x20,
+    R_ALT = 0x40,
+    R_GUI = 0x80,
 }
 
 impl From<u8> for CCKeycode {
@@ -286,7 +287,7 @@ impl From<CCKeycode> for u8 {
             CCKeycode::L___ALT => 0xE2,
             CCKeycode::L___GUI => 0xE3,
 
-            _ => 0x04, // default to A I guess?
+            _ => 0x00, // default to no key
         }
     }
 }

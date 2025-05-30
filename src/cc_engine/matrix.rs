@@ -1,5 +1,8 @@
-use embassy_rp::gpio::{AnyPin, Input, Level, Output, Pull};
-use embassy_time::Timer;
+use embassy_rp::gpio::{Flex, Pull};
+
+use crate::keymap;
+
+use super::key::Key;
 
 #[allow(dead_code)]
 pub enum DiodeDirection {
@@ -7,111 +10,93 @@ pub enum DiodeDirection {
     RowToColumn,
 }
 
-pub struct KeyboardMatrix<const ROW_SIZE: usize, const COL_SIZE: usize> {
-    rows: [AnyPin; ROW_SIZE],
-    columns: [AnyPin; COL_SIZE],
+pub struct KeyboardMatrix<'a, const ROW_SIZE: usize, const COL_SIZE: usize> {
+    rows: [Flex<'a>; ROW_SIZE],
+    columns: [Flex<'a>; COL_SIZE],
+    keys: [Key; keymap::COLUMNS as usize * keymap::ROWS as usize],
     diode_direction: DiodeDirection,
+    active_layer: usize,
 }
 
-impl<const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<ROW_SIZE, COL_SIZE> {
+impl<'a, const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<'a, ROW_SIZE, COL_SIZE> {
     pub fn new(
-        rows: [AnyPin; ROW_SIZE],
-        columns: [AnyPin; COL_SIZE],
+        mut rows: [Flex<'a>; ROW_SIZE],
+        mut columns: [Flex<'a>; COL_SIZE],
         diode_direction: DiodeDirection,
     ) -> Self {
+        match &diode_direction {
+            DiodeDirection::ColumnToRow => {
+                // set rows as input and columns as output
+                columns.iter_mut().for_each(|col| col.set_as_output());
+                rows.iter_mut().for_each(|row| {
+                    row.set_as_input();
+                    row.set_pull(Pull::Down);
+                });
+            }
+            DiodeDirection::RowToColumn => {
+                // set rows as output and columns as input
+                rows.iter_mut().for_each(|row| row.set_as_output());
+                columns.iter_mut().for_each(|col| {
+                    col.set_as_input();
+                    col.set_pull(Pull::Down);
+                });
+            }
+        }
+
+        // generate keys
+        let mut keys = [Key::new(0, 0); keymap::ROWS as usize * keymap::COLUMNS as usize];
+
+        // instantiate key list
+        keys.iter_mut().enumerate().for_each(|(index, key)| {
+            let row = index / keymap::COLUMNS as usize;
+            let column = index % keymap::COLUMNS as usize;
+            *key = Key::new(row as u8, column as u8);
+        });
+
         Self {
             columns,
             rows,
+            keys,
             diode_direction,
+            active_layer: 0,
         }
     }
 
     // polls the matrix and returns up to 10 pressed keys
-    pub async fn poll(&mut self) -> PollResult {
-        let mut result = PollResult::new();
-
+    pub fn poll(&mut self) -> &[Key; keymap::COLUMNS as usize * keymap::ROWS as usize] {
         // poll the key matrix
         match self.diode_direction {
             DiodeDirection::ColumnToRow => {
                 // poll by settign columns and readings rows
                 for (col_index, col) in &mut self.columns.iter_mut().enumerate() {
-                    // set the column high, should go back to low once this goes out of scope on the next iteration
-                    let _output = Output::new(col, Level::High);
+                    col.set_high();
+                    cortex_m::asm::delay(100);
 
                     // poll the rows
                     for (row_index, row) in &mut self.rows.iter_mut().enumerate() {
-                        let mut input = Input::new(row, Pull::Down);
-                        input.set_schmitt(true);
-                        Timer::after_nanos(1).await;
-                        if input.is_high() {
-                            result.push_key(row_index, col_index);
-                        }
+                        let adjusted_index = (usize::from(keymap::COLUMNS) * row_index) + col_index;
+                        self.keys[adjusted_index].process(&row.is_high(), &mut self.active_layer);
                     }
+                    col.set_low();
                 }
             }
             DiodeDirection::RowToColumn => {
                 // poll by setting rows and reading columns
                 for (row_index, row) in &mut self.rows.iter_mut().enumerate() {
                     // set the row high, should go back to low once this goes out of scope on the next iteration
-                    let _output = Output::new(row, Level::High);
+                    row.set_high();
+                    cortex_m::asm::delay(100);
 
                     // poll the columns
                     for (col_index, col) in &mut self.columns.iter_mut().enumerate() {
-                        let mut input = Input::new(col, Pull::Down);
-                        input.set_schmitt(true);
-                        Timer::after_nanos(1).await;
-                        if input.is_high() {
-                            result.push_key(row_index, col_index);
-                        }
+                        let adjusted_index = (usize::from(keymap::COLUMNS) * row_index) + col_index;
+                        self.keys[adjusted_index].process(&col.is_high(), &mut self.active_layer);
                     }
+                    row.set_low();
                 }
             }
         };
 
-        result
-    }
-}
-
-#[derive(Clone, Copy)]
-pub struct Key {
-    pub row: usize,
-    pub column: usize,
-}
-
-pub struct PollResult {
-    key_stack: [Key; 10],
-    stack_pointer: usize,
-    exausted: bool,
-}
-
-impl PollResult {
-    fn new() -> Self {
-        Self {
-            key_stack: [Key { row: 0, column: 0 }; 10],
-            stack_pointer: 0,
-            exausted: false,
-        }
-    }
-
-    // push a new pressed key onto the stack
-    fn push_key(&mut self, row: usize, col: usize) {
-        if self.stack_pointer < self.key_stack.len() {
-            self.key_stack[self.stack_pointer].row = row;
-            self.key_stack[self.stack_pointer].column = col;
-            self.stack_pointer += 1;
-        }
-    }
-
-    // retrieves a reference to the list of keys parsed
-    pub fn get_pressed_keys(&self) -> &[Key] {
-        &self.key_stack
-    }
-
-    pub fn get_num_keys(&self) -> usize {
-        if !self.exausted {
-            self.stack_pointer
-        } else {
-            0
-        }
+        &self.keys
     }
 }
