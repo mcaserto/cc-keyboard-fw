@@ -14,7 +14,7 @@ pub enum KeyState {
 }
 
 #[derive(Clone, Copy)]
-pub struct Key {
+pub struct KeySM {
     state: KeyState,
     active_key: CCKeycode,
     base_key: CCKeycode,
@@ -24,7 +24,7 @@ pub struct Key {
     timestamp_released: Instant,
 }
 
-impl Key {
+impl KeySM {
     // Description: Create a new key struct
     // Param: row The row in the keymap that this key is associated
     // Param: column The column in the keymap that this key is associated
