@@ -1,8 +1,7 @@
 use usbd_hid::descriptor;
 
 use super::key_state::KeySM;
-use super::keycodes::CCModifier;
-use crate::cc_engine::keycodes::CCKeycode;
+use crate::cc_engine::keycodes::*;
 
 pub fn process_poll_result(result: &[KeySM]) -> descriptor::KeyboardReport {
     let mut report = descriptor::KeyboardReport::default();
@@ -13,17 +12,14 @@ pub fn process_poll_result(result: &[KeySM]) -> descriptor::KeyboardReport {
         match key.get_keycode() {
             Some(keycode) => {
                 match keycode {
-                    CCKeycode::Lctrl => report.modifier |= CCModifier::L_CTRL as u8,
-                    CCKeycode::Lshft => report.modifier |= CCModifier::L_SHFT as u8,
-                    CCKeycode::Lalt => report.modifier |= CCModifier::L_ALT as u8,
-                    CCKeycode::Lgui => report.modifier |= CCModifier::L_GUI as u8,
-                    _ => {
-                        // process the keycode
+                    Key::Mod(modifier) => report.modifier |= modifier as u8,
+                    Key::Hid(keycode) => {
                         if index < 6 {
-                            report.keycodes[index] = u8::from(keycode);
+                            report.keycodes[index] = keycode as u8;
                             index += 1;
                         }
                     }
+                    _ => (), // ignore all other keycodes
                 }
             }
             None => {

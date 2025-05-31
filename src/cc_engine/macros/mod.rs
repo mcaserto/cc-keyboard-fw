@@ -2,14 +2,14 @@
 use crate::cc_engine::{keycodes, tasks::resources};
 use usbd_hid::descriptor::KeyboardReport;
 
-use super::keycodes::CCKeycode;
+use super::keycodes::Hid;
 
 // description: sends a string as keyboard input
 pub fn send_string(str: &str) {
     let mut report = KeyboardReport::default();
     for character in str.chars() {
         if character.is_uppercase() {
-            report.modifier |= keycodes::CCModifier::L_SHFT as u8;
+            report.modifier |= keycodes::Mod::Lshft as u8;
             let _ = resources::KEYBOARD_REPORT_CHANNEL.try_send(report);
         } else {
             report.modifier = 0;
@@ -17,7 +17,7 @@ pub fn send_string(str: &str) {
         }
 
         // ignoring send error for now
-        report.keycodes[0] = (keycodes::CCKeycode::from(character)).into();
+        report.keycodes[0] = keycodes::Hid::from(character) as u8;
         let _ = resources::KEYBOARD_REPORT_CHANNEL.try_send(report);
 
         // hacky to allow sending multiples of a single chracter
@@ -31,9 +31,9 @@ pub fn send_string(str: &str) {
 
 // description: sends a single keycode
 // todo! Keep track of key status (pressed, released) and pass to macro
-pub fn send_keycode(code: &CCKeycode) {
+pub fn send_keycode(code: &Hid) {
     let mut report = KeyboardReport::default();
-    report.keycodes[0] = (*code).into();
+    report.keycodes[0] = (*code) as u8;
     let _ = resources::KEYBOARD_REPORT_CHANNEL.try_send(report);
 
     // cancel it

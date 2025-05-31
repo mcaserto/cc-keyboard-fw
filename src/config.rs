@@ -1,6 +1,8 @@
 // File: keymap.rs
 // Description: Contains information about the keyboard keymap
-use crate::cc_engine::keycodes::CCKeycode::{self, *};
+use crate::cc_engine::keycodes::Hid::*;
+use crate::cc_engine::keycodes::Key::{self, Hid, Layer, Macro, Mod, Pass, MT};
+use crate::cc_engine::keycodes::{self, Mod::*};
 
 pub const ROWS: u8 = 4;
 pub const COLUMNS: u8 = 12;
@@ -10,28 +12,28 @@ pub const NUM_LAYERS: u8 = 3;
 pub const MOD_TAP_THRESHOLD: u64 = 250; // value in ms
 
 #[allow(non_camel_case_types)]
-type CCLayer = [CCKeycode; ROWS as usize * COLUMNS as usize];
-type CCKeymap = [CCLayer; NUM_LAYERS as usize];
+type KbLayer = [Key; ROWS as usize * COLUMNS as usize];
+type Keymap = [KbLayer; NUM_LAYERS as usize];
 
 #[rustfmt::skip]
-pub const KEYMAP: CCKeymap = [
+pub const KEYMAP: Keymap = [
 [
-    __TAB__, ___Q___, ___W___, ___E___, ___R___,         ___T___, ___Y___, ___U___,         ___I___, ___O___, ___P___, BACK_SP,
-    BACK_SP, ___A___, ___S___, ___D___, MT(0x09, 0xE1),  ___G___, ___H___, MT(0x09, 0xE1),  ___K___, ___L___, Semicln, _QUOTE_,
-    Lshft,   ___Z___, ___X___, ___C___, ___V___,         ___B___, ___N___, ___M___,         _COMMA_, __DOT__, _SLASH_, _ENTER_,
-    __ESC__, Lctrl,   Lalt,    Lgui,    Layer(1),        _SPACE_, _SPACE_, Layer(2),        _LEFT__, _DOWN__, _RIGHT_, __UP___,
+    Hid(Tab),    Hid(Q),     Hid(W),    Hid(E),    Hid(R),       Hid(T),     Hid(Y),     Hid(U),       Hid(I),    Hid(O),    Hid(P),       Hid(Backsp),
+    Hid(Backsp), Hid(A),     Hid(S),    Hid(D),    MT(Lshft, F), Hid(G),     Hid(H),     MT(Lshft, J), Hid(K),    Hid(L),    Hid(Semicln), Hid(Quote),
+    Mod(Lshft),  Hid(Z),     Hid(X),    Hid(C),    Hid(V),       Hid(B),     Hid(N),     Hid(M),       Hid(Com),  Hid(Dot),  Hid(Slash),   Hid(Enter),
+    Hid(Esc),    Mod(Lctrl), Mod(Lalt), Mod(Lgui), Layer(1),     Hid(Space), Hid(Space), Layer(2),     Hid(Left), Hid(Down), Hid(Right),   Hid(Up),
 ],
 [
-    Passthr,   Passthr, Passthr, Passthr, Passthr, Passthr, Passthr, Passthr,  Passthr, Passthr, Passthr, Passthr,
-    Passthr,   FUNCT01, FUNCT02, FUNCT03, FUNCT04, FUNCT05, _LEFT__, _DOWN__,  __UP___, _RIGHT_, Passthr, Passthr,
-    Passthr,   FUNCT07, FUNCT08, FUNCT09, FUNCT10, FUNCT11, FUNCT12, Passthr,  Passthr, Passthr, Passthr, Passthr,
-    Macro(m1), Passthr, Passthr, Passthr, Passthr, Passthr, Passthr, Passthr,  Passthr, Passthr, Passthr, Passthr,
+    Pass,      Pass,     Pass,     Pass,     Pass,     Pass,     Pass,      Pass,      Pass,    Pass,       Pass, Pass,
+    Pass,      Hid(F01), Hid(F02), Hid(F03), Hid(F04), Hid(F05), Hid(Left), Hid(Down), Hid(Up), Hid(Right), Pass, Pass,
+    Pass,      Hid(F07), Hid(F08), Hid(F09), Hid(F10), Hid(F11), Hid(F12),  Pass,      Pass,    Pass,       Pass, Pass,
+    Macro(m1), Pass,     Pass,     Pass,     Pass,     Pass,     Pass,      Pass,      Pass,    Pass,       Pass, Pass,
 ],
 [
-    Passthr,   ___0___, ___1___, ___2___, ___3___, Passthr, Passthr, Passthr,  Passthr, Passthr, Passthr, Passthr,
-    Passthr,   Passthr, ___4___, ___5___, ___6___, Passthr, Passthr, Passthr,  Passthr, Passthr, Passthr, Passthr,
-    Passthr,   Passthr, ___7___, ___8___, ___9___, Passthr, Passthr, Passthr,  Passthr, Passthr, Passthr, Passthr,
-    Macro(m2), Passthr, Passthr, Passthr, Passthr, Passthr, Passthr, Passthr,  Passthr, Passthr, Passthr, Passthr,
+    Pass,      Hid(N0), Hid(N1), Hid(N2), Hid(N3), Pass, Pass, Pass,  Pass, Pass, Pass, Pass,
+    Pass,      Pass,    Hid(N4), Hid(N5), Hid(N6), Pass, Pass, Pass,  Pass, Pass, Pass, Pass,
+    Pass,      Pass,    Hid(N7), Hid(N8), Hid(N9), Pass, Pass, Pass,  Pass, Pass, Pass, Pass,
+    Macro(m2), Pass,    Pass,    Pass,    Pass,    Pass, Pass, Pass,  Pass, Pass, Pass, Pass,
 ]
 ];
 
@@ -45,8 +47,8 @@ fn m2() {
     // do stuff
     use super::cc_engine::macros;
     // add c comment to current line and then go to the end of it
-    macros::send_keycode(&CCKeycode::__HOME_);
-    macros::send_keycode(&CCKeycode::_SLASH_);
-    macros::send_keycode(&CCKeycode::_SLASH_);
-    macros::send_keycode(&CCKeycode::__END__);
+    macros::send_keycode(&keycodes::Hid::Home);
+    macros::send_keycode(&keycodes::Hid::Slash);
+    macros::send_keycode(&keycodes::Hid::Slash);
+    macros::send_keycode(&keycodes::Hid::End);
 }
