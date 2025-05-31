@@ -1,11 +1,13 @@
 // File: keymap.rs
 // Description: Contains information about the keyboard keymap
 use crate::cc_engine::keycodes::CCKeycode::{self, *};
-use crate::cc_engine::keycodes::CCModifier::*;
 
 pub const ROWS: u8 = 4;
 pub const COLUMNS: u8 = 12;
 pub const NUM_LAYERS: u8 = 3;
+
+// other consts
+pub const MOD_TAP_THRESHOLD: u64 = 250; // value in ms
 
 #[allow(non_camel_case_types)]
 type CCLayer = [CCKeycode; ROWS as usize * COLUMNS as usize];
@@ -15,9 +17,9 @@ type CCKeymap = [CCLayer; NUM_LAYERS as usize];
 pub const KEYMAP: CCKeymap = [
 [
     __TAB__, ___Q___, ___W___, ___E___, ___R___,  ___T___, ___Y___, ___U___,  ___I___, ___O___, ___P___, BACK_SP,
-    BACK_SP, ___A___, ___S___, ___D___, MT(L_SHFT, 0x09),  ___G___, ___H___, ___J___,  ___K___, ___L___, SEMICLN, _QUOTE_,
-    L_SHIFT, ___Z___, ___X___, ___C___, ___V___,  ___B___, ___N___, ___M___,  _COMMA_, __DOT__, _SLASH_, _ENTER_,
-    __ESC__, L__CTRL, L___ALT, L___GUI, LAYER(1), _SPACE_, _SPACE_, LAYER(2), _LEFT__, _DOWN__, _RIGHT_, __UP___,
+    BACK_SP, ___A___, ___S___, ___D___, MT(0x09, 0xE1),  ___G___, ___H___, ___J___,  ___K___, ___L___, SEMICLN, _QUOTE_,
+    LSHFT,   ___Z___, ___X___, ___C___, ___V___,  ___B___, ___N___, ___M___,  _COMMA_, __DOT__, _SLASH_, _ENTER_,
+    __ESC__, LCTRL,   LALT,    LGUI,    LAYER(1), _SPACE_, _SPACE_, LAYER(2), _LEFT__, _DOWN__, _RIGHT_, __UP___,
 ],
 [
     ___1___,   ___2___, ___3___, ___4___, ___5___, ___6___, ___7___, ___8___,  ___9___, ___0___, PASSTHR, PASSTHR,

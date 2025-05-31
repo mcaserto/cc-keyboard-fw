@@ -2,7 +2,7 @@
 use embassy_time::Instant;
 
 // crate
-use super::keycodes::{CCKeycode, CCModifier};
+use super::keycodes::CCKeycode;
 use crate::config;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
@@ -16,11 +16,11 @@ pub enum KeyState {
 #[derive(Clone, Copy)]
 pub struct Key {
     state: KeyState,
-    keycode: CCKeycode,
+    active_key: CCKeycode,
     base_key: CCKeycode,
     row: u8,
     column: u8,
-    timestamp_pressed: Instant,
+    timestamp_tapped: Instant,
     timestamp_released: Instant,
 }
 
@@ -29,76 +29,91 @@ impl Key {
     // Param: row The row in the keymap that this key is associated
     // Param: column The column in the keymap that this key is associated
     pub fn new(row: u8, column: u8) -> Self {
-        let keymap_index = (config::COLUMNS * row) + column;
         Self {
             state: KeyState::Released,
-            keycode: CCKeycode::_______,
-            base_key: config::KEYMAP[0][usize::from(keymap_index)],
+            active_key: CCKeycode::_______,
+            base_key: CCKeycode::_______,
             row: row,
             column: column,
-            timestamp_pressed: Instant::MIN,
+            timestamp_tapped: Instant::MIN,
             timestamp_released: Instant::MIN,
         }
     }
 
     fn tapped(&mut self, layer: &mut usize) {
-        self.state = match self.state {
-            KeyState::Tapped => KeyState::Held,
-            KeyState::Held => KeyState::Held,
-            KeyState::Released => KeyState::Tapped,
-            KeyState::Idle => KeyState::Tapped,
-        };
+        // initializer tapped state
         let keymap_index = (config::COLUMNS * self.row) + self.column;
-        self.keycode = config::KEYMAP[usize::from(*layer)][usize::from(keymap_index)];
+        self.active_key = config::KEYMAP[usize::from(*layer)][usize::from(keymap_index)];
+        self.timestamp_tapped = Instant::now();
 
-        // pressed logic
-        self.timestamp_pressed = Instant::now();
-        let keymap_index = (config::COLUMNS * self.row) + self.column;
-
-        self.keycode = match self.base_key {
-            CCKeycode::_______ => CCKeycode::_______,
+        match self.active_key {
             CCKeycode::LAYER(commanded_layer) => {
-                // set the layer
+                // store base keycode
+                // self.base_key = self.active_key;
                 *layer = usize::from(commanded_layer);
-                CCKeycode::_______
             }
             CCKeycode::PASSTHR => {
                 if *layer > 0 {
-                    config::KEYMAP[usize::from(*layer - 1)][usize::from(keymap_index)]
+                    self.active_key =
+                        config::KEYMAP[usize::from(*layer - 1)][usize::from(keymap_index)]
                 } else {
-                    config::KEYMAP[usize::from(*layer)][usize::from(keymap_index)]
+                    self.active_key = config::KEYMAP[usize::from(*layer)][usize::from(keymap_index)]
                 }
             }
             CCKeycode::MACRO(callback) => {
                 // call the macro
                 callback();
-                CCKeycode::_______
             }
-            CCKeycode::MT(modifier, keycode) => {
-                // modtap support
-                CCKeycode::MT(modifier, keycode)
+            CCKeycode::MT(_modifier, _keycode) => {
+                // do nothing on a tap for a MT key
             }
-            _ => self.base_key,
+            _ => (),
         };
     }
 
-    fn held(&mut self, layer: &mut usize) {}
+    fn held(&mut self) {
+        match self.active_key {
+            CCKeycode::MT(_tap_key, hold_key) => {
+                self.base_key = self.active_key;
+
+                if (Instant::now() - self.timestamp_tapped).as_millis() >= config::MOD_TAP_THRESHOLD
+                {
+                    self.active_key = CCKeycode::from(hold_key);
+                }
+            }
+            _ => (),
+        }
+    }
 
     fn released(&mut self, layer: &mut usize) {
         self.timestamp_released = Instant::now();
-        self.keycode = CCKeycode::_______;
 
         // process
-        match self.base_key {
+        match self.active_key {
             CCKeycode::LAYER(_commanded_layer) => {
                 // return our layer to the base layer
                 *layer = 0;
+                self.active_key = CCKeycode::_______;
             }
-            CCKeycode::MT(_modifier, keycode) => {
-                if (self.timestamp_pressed - self.timestamp_released).as_millis() < 200 {
-                    // press the key
-                    self.keycode = CCKeycode::from(keycode);
+            CCKeycode::MT(tap_key, _hold_key) => {
+                if (self.timestamp_released - self.timestamp_tapped).as_millis()
+                    < config::MOD_TAP_THRESHOLD
+                {
+                    self.active_key = CCKeycode::from(tap_key)
+                } else {
+                    self.active_key = self.base_key;
                 }
+            }
+            _ => self.active_key = CCKeycode::_______,
+        }
+    }
+
+    fn idle(&mut self) {
+        // during idle, check if our base key is MT, and reset back to the base
+        match self.base_key {
+            CCKeycode::MT(_tap_key, _hold_key) => {
+                self.active_key = self.base_key;
+                self.base_key = CCKeycode::_______;
             }
             _ => (),
         }
@@ -124,23 +139,24 @@ impl Key {
             };
         }
 
+        // act on current state
         match self.state {
-            KeyState::Idle => (),
+            KeyState::Idle => self.idle(),
             KeyState::Tapped => self.tapped(layer),
-            KeyState::Held => self.held(layer),
+            KeyState::Held => self.held(),
             KeyState::Released => self.released(layer),
         }
     }
 
     pub fn get_keycode(&self) -> Option<CCKeycode> {
-        match self.keycode {
+        match self.active_key {
             // filtering out custom keycodes that should never be sent to a computer
             CCKeycode::_______ => None,
             CCKeycode::LAYER(_commanded_layer) => None,
             CCKeycode::PASSTHR => None,
             CCKeycode::MACRO(_callback) => None,
             CCKeycode::MT(_mod, _keycode) => None,
-            _ => Some(self.keycode),
+            _ => Some(self.active_key),
         }
     }
 }

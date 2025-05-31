@@ -2,7 +2,6 @@ use usbd_hid::descriptor;
 
 use super::key::Key;
 use super::keycodes::CCModifier;
-use super::tasks::resources;
 use crate::cc_engine::keycodes::CCKeycode;
 
 // pub fn process_poll_result(result: &mut matrix::PollResult) -> descriptor::KeyboardReport {
@@ -87,10 +86,10 @@ pub fn process_poll_result(result: &[Key]) -> descriptor::KeyboardReport {
         match key.get_keycode() {
             Some(keycode) => {
                 match keycode {
-                    CCKeycode::L__CTRL => report.modifier |= CCModifier::L_CTRL as u8,
-                    CCKeycode::L_SHIFT => report.modifier |= CCModifier::L_SHFT as u8,
-                    CCKeycode::L___ALT => report.modifier |= CCModifier::L_ALT as u8,
-                    CCKeycode::L___GUI => report.modifier |= CCModifier::L_GUI as u8,
+                    CCKeycode::LCTRL => report.modifier |= CCModifier::L_CTRL as u8,
+                    CCKeycode::LSHFT => report.modifier |= CCModifier::L_SHFT as u8,
+                    CCKeycode::LALT => report.modifier |= CCModifier::L_ALT as u8,
+                    CCKeycode::LGUI => report.modifier |= CCModifier::L_GUI as u8,
                     _ => {
                         // process the keycode
                         if index < 6 {

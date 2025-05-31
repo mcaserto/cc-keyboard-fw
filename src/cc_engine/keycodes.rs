@@ -83,16 +83,16 @@ pub enum CCKeycode {
     _DOWN__ = 0x51,
     __UP___ = 0x52,
 
-    L__CTRL = 0xE0,
-    L_SHIFT = 0xE1,
-    L___ALT = 0xE2,
-    L___GUI = 0xE3,
+    LCTRL = 0xE0,
+    LSHFT = 0xE1,
+    LALT = 0xE2,
+    LGUI = 0xE3,
 
     // custom codes for CC Firmware
-    LAYER(u8),          // layer shift key
-    PASSTHR,            // pass-through
-    MACRO(fn()),        // macro
-    MT(CCModifier, u8), // mod tap
+    LAYER(u8),   // layer shift key
+    PASSTHR,     // pass-through
+    MACRO(fn()), // macro
+    MT(u8, u8),  // mod tap (tap, hold)
 }
 
 #[repr(u8)]
@@ -190,10 +190,10 @@ impl From<u8> for CCKeycode {
             0x51 => CCKeycode::_DOWN__,
             0x52 => CCKeycode::__UP___,
 
-            0xE0 => CCKeycode::L__CTRL,
-            0xE1 => CCKeycode::L_SHIFT,
-            0xE2 => CCKeycode::L___ALT,
-            0xE3 => CCKeycode::L___GUI,
+            0xE0 => CCKeycode::LCTRL,
+            0xE1 => CCKeycode::LSHFT,
+            0xE2 => CCKeycode::LALT,
+            0xE3 => CCKeycode::LGUI,
 
             _ => CCKeycode::_______,
         }
@@ -282,10 +282,10 @@ impl From<CCKeycode> for u8 {
             CCKeycode::_DOWN__ => 0x51,
             CCKeycode::__UP___ => 0x52,
 
-            CCKeycode::L__CTRL => 0xE0,
-            CCKeycode::L_SHIFT => 0xE1,
-            CCKeycode::L___ALT => 0xE2,
-            CCKeycode::L___GUI => 0xE3,
+            CCKeycode::LCTRL => 0xE0,
+            CCKeycode::LSHFT => 0xE1,
+            CCKeycode::LALT => 0xE2,
+            CCKeycode::LGUI => 0xE3,
 
             _ => 0x00, // default to no key
         }

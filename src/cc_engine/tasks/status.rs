@@ -7,8 +7,6 @@ use embassy_rp::{
 };
 use embassy_time::Timer;
 
-use crate::cc_engine::tasks::resources::{self, StatusCode};
-
 bind_interrupts!(struct Irqs {
     PIO0_IRQ_0 => InterruptHandler<PIO0>;
 });

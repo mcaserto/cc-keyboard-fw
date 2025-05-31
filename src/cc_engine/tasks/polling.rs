@@ -1,6 +1,5 @@
 use crate::cc_engine::{self, matrix};
 use embassy_time::Timer;
-use usbd_hid::descriptor::{self, KeyboardReport};
 
 // crate includes
 use super::resources;
@@ -16,14 +15,11 @@ pub async fn matrix_polling_handler(
     >,
 ) {
     // loop
-    let mut last_report = KeyboardReport::default();
     loop {
         let result = key_matrix.poll();
         let report = cc_engine::processing::process_poll_result(result);
 
-        // if last_report != report {
         resources::KEYBOARD_REPORT_CHANNEL.send(report).await;
-        // }
         Timer::after_millis(1).await;
     }
 }
