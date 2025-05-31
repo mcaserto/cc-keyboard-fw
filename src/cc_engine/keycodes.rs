@@ -357,6 +357,7 @@ impl From<char> for CCKeycode {
             '7' => CCKeycode::___7___,
             '8' => CCKeycode::___8___,
             '9' => CCKeycode::___9___,
+            '.' => CCKeycode::__DOT__,
             ' ' => CCKeycode::_SPACE_,
             _ => CCKeycode::__ESC__,
         }
