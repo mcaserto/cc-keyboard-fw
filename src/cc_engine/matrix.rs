@@ -2,7 +2,7 @@ use embassy_rp::gpio::{Flex, Pull};
 
 use crate::config;
 
-use super::key::KeySM;
+use super::key_state::KeySM;
 
 #[allow(dead_code)]
 pub enum DiodeDirection {

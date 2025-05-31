@@ -4,6 +4,7 @@
 // embassy includes
 use embassy_sync::channel::Channel;
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, signal::Signal};
+use smart_leds::RGB8;
 use usbd_hid::descriptor::{KeyboardReport, MediaKeyboardReport, MouseReport, SystemControlReport};
 
 // ridiculous buffer sizes but I've got memory so why not
@@ -19,9 +20,12 @@ pub static SYSTEM_CONTROL_REPORT_CHANNEL: Channel<
     100,
 > = Channel::new();
 
-pub static STATUS_SIGNAL: Signal<CriticalSectionRawMutex, StatusCode> = Signal::new();
+pub static STATUS_SIGNAL: Signal<CriticalSectionRawMutex, Status> = Signal::new();
 
-pub enum StatusCode {
+#[allow(dead_code)]
+pub enum Status {
+    Idle,
     Error,
-    Warning,
+    Heartbeat,
+    Color(RGB8),
 }

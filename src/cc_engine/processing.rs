@@ -1,6 +1,6 @@
 use usbd_hid::descriptor;
 
-use super::key::KeySM;
+use super::key_state::KeySM;
 use super::keycodes::CCModifier;
 use crate::cc_engine::keycodes::CCKeycode;
 

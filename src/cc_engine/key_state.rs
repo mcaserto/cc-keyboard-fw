@@ -1,8 +1,9 @@
 // embassy
 use embassy_time::Instant;
+use smart_leds::RGB8;
 
 // crate
-use super::keycodes::CCKeycode;
+use super::{keycodes::CCKeycode, tasks::resources};
 use crate::config;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
@@ -49,7 +50,7 @@ impl KeySM {
         match self.active_key {
             CCKeycode::LAYER(commanded_layer) => {
                 // store base keycode
-                // self.base_key = self.active_key;
+                resources::STATUS_SIGNAL.signal(resources::Status::Color(RGB8::new(0, 0, 50)));
                 *layer = usize::from(commanded_layer);
             }
             CCKeycode::PASSTHR => {
@@ -94,6 +95,7 @@ impl KeySM {
                 // return our layer to the base layer
                 *layer = 0;
                 self.active_key = CCKeycode::_______;
+                resources::STATUS_SIGNAL.signal(resources::Status::Heartbeat);
             }
             CCKeycode::MT(tap_key, _hold_key) => {
                 if (self.timestamp_released - self.timestamp_tapped).as_millis()
