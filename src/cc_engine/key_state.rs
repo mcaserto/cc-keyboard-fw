@@ -32,10 +32,10 @@ impl KeySM {
     pub fn new(row: u8, column: u8) -> Self {
         Self {
             state: KeyState::Released,
-            active_key: CCKeycode::_______,
-            base_key: CCKeycode::_______,
-            row: row,
-            column: column,
+            active_key: CCKeycode::__NOP__,
+            base_key: CCKeycode::__NOP__,
+            row,
+            column,
             timestamp_tapped: Instant::MIN,
             timestamp_released: Instant::MIN,
         }
@@ -44,24 +44,25 @@ impl KeySM {
     fn tapped(&mut self, layer: &mut usize) {
         // initializer tapped state
         let keymap_index = (config::COLUMNS * self.row) + self.column;
-        self.active_key = config::KEYMAP[usize::from(*layer)][usize::from(keymap_index)];
+        self.active_key = config::KEYMAP[*layer][usize::from(keymap_index)];
         self.timestamp_tapped = Instant::now();
 
         match self.active_key {
-            CCKeycode::LAYER(commanded_layer) => {
+            CCKeycode::Layer(commanded_layer) => {
                 // store base keycode
                 resources::STATUS_SIGNAL.signal(resources::Status::Color(RGB8::new(0, 0, 50)));
                 *layer = usize::from(commanded_layer);
             }
-            CCKeycode::PASSTHR => {
-                if *layer > 0 {
-                    self.active_key =
-                        config::KEYMAP[usize::from(*layer - 1)][usize::from(keymap_index)]
-                } else {
-                    self.active_key = config::KEYMAP[usize::from(*layer)][usize::from(keymap_index)]
+            CCKeycode::Passthr => {
+                let mut current_layer = *layer;
+                while config::KEYMAP[current_layer][usize::from(keymap_index)] == CCKeycode::Passthr
+                    && current_layer >= 1
+                {
+                    current_layer -= 1;
                 }
+                self.active_key = config::KEYMAP[current_layer][usize::from(keymap_index)]
             }
-            CCKeycode::MACRO(callback) => {
+            CCKeycode::Macro(callback) => {
                 // call the macro
                 callback();
             }
@@ -73,16 +74,12 @@ impl KeySM {
     }
 
     fn held(&mut self) {
-        match self.active_key {
-            CCKeycode::MT(_tap_key, hold_key) => {
-                self.base_key = self.active_key;
+        if let CCKeycode::MT(_tap_key, hold_key) = self.active_key {
+            self.base_key = self.active_key;
 
-                if (Instant::now() - self.timestamp_tapped).as_millis() >= config::MOD_TAP_THRESHOLD
-                {
-                    self.active_key = CCKeycode::from(hold_key);
-                }
+            if (Instant::now() - self.timestamp_tapped).as_millis() >= config::MOD_TAP_THRESHOLD {
+                self.active_key = CCKeycode::from(hold_key);
             }
-            _ => (),
         }
     }
 
@@ -91,10 +88,10 @@ impl KeySM {
 
         // process
         match self.active_key {
-            CCKeycode::LAYER(_commanded_layer) => {
+            CCKeycode::Layer(_commanded_layer) => {
                 // return our layer to the base layer
                 *layer = 0;
-                self.active_key = CCKeycode::_______;
+                self.active_key = CCKeycode::__NOP__;
                 resources::STATUS_SIGNAL.signal(resources::Status::Heartbeat);
             }
             CCKeycode::MT(tap_key, _hold_key) => {
@@ -106,18 +103,15 @@ impl KeySM {
                     self.active_key = self.base_key;
                 }
             }
-            _ => self.active_key = CCKeycode::_______,
+            _ => self.active_key = CCKeycode::__NOP__,
         }
     }
 
     fn idle(&mut self) {
         // during idle, check if our base key is MT, and reset back to the base
-        match self.base_key {
-            CCKeycode::MT(_tap_key, _hold_key) => {
-                self.active_key = self.base_key;
-                self.base_key = CCKeycode::_______;
-            }
-            _ => (),
+        if let CCKeycode::MT(_tap_key, _hold_key) = self.base_key {
+            self.active_key = self.base_key;
+            self.base_key = CCKeycode::__NOP__;
         }
     }
 
@@ -153,10 +147,10 @@ impl KeySM {
     pub fn get_keycode(&self) -> Option<CCKeycode> {
         match self.active_key {
             // filtering out custom keycodes that should never be sent to a computer
-            CCKeycode::_______ => None,
-            CCKeycode::LAYER(_commanded_layer) => None,
-            CCKeycode::PASSTHR => None,
-            CCKeycode::MACRO(_callback) => None,
+            CCKeycode::__NOP__ => None,
+            CCKeycode::Layer(_commanded_layer) => None,
+            CCKeycode::Passthr => None,
+            CCKeycode::Macro(_callback) => None,
             CCKeycode::MT(_mod, _keycode) => None,
             _ => Some(self.active_key),
         }

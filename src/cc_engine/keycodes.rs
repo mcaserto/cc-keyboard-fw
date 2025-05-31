@@ -5,7 +5,7 @@
 #[allow(non_camel_case_types)]
 #[derive(Copy, Clone, PartialEq)]
 pub enum CCKeycode {
-    _______ = 0x00,
+    __NOP__ = 0x00,
     ___A___ = 0x04,
     ___B___ = 0x05,
     ___C___ = 0x06,
@@ -49,7 +49,7 @@ pub enum CCKeycode {
 
     _SPACE_ = 0x2C,
 
-    SEMICLN = 0x33,
+    Semicln = 0x33,
     _QUOTE_ = 0x34,
 
     _COMMA_ = 0x36,
@@ -83,15 +83,15 @@ pub enum CCKeycode {
     _DOWN__ = 0x51,
     __UP___ = 0x52,
 
-    LCTRL = 0xE0,
-    LSHFT = 0xE1,
-    LALT = 0xE2,
-    LGUI = 0xE3,
+    Lctrl = 0xE0,
+    Lshft = 0xE1,
+    Lalt = 0xE2,
+    Lgui = 0xE3,
 
     // custom codes for CC Firmware
-    LAYER(u8),   // layer shift key
-    PASSTHR,     // pass-through
-    MACRO(fn()), // macro
+    Layer(u8),   // layer shift key
+    Passthr,     // pass-through
+    Macro(fn()), // macro
     MT(u8, u8),  // mod tap (tap, hold)
 }
 
@@ -113,7 +113,7 @@ pub enum CCModifier {
 impl From<u8> for CCKeycode {
     fn from(value: u8) -> Self {
         match value {
-            0x00 => CCKeycode::_______,
+            0x00 => CCKeycode::__NOP__,
             0x04 => CCKeycode::___A___,
             0x05 => CCKeycode::___B___,
             0x06 => CCKeycode::___C___,
@@ -157,7 +157,7 @@ impl From<u8> for CCKeycode {
 
             0x2C => CCKeycode::_SPACE_,
 
-            0x33 => CCKeycode::SEMICLN,
+            0x33 => CCKeycode::Semicln,
             0x34 => CCKeycode::_QUOTE_,
 
             0x36 => CCKeycode::_COMMA_,
@@ -190,12 +190,12 @@ impl From<u8> for CCKeycode {
             0x51 => CCKeycode::_DOWN__,
             0x52 => CCKeycode::__UP___,
 
-            0xE0 => CCKeycode::LCTRL,
-            0xE1 => CCKeycode::LSHFT,
-            0xE2 => CCKeycode::LALT,
-            0xE3 => CCKeycode::LGUI,
+            0xE0 => CCKeycode::Lctrl,
+            0xE1 => CCKeycode::Lshft,
+            0xE2 => CCKeycode::Lalt,
+            0xE3 => CCKeycode::Lgui,
 
-            _ => CCKeycode::_______,
+            _ => CCKeycode::__NOP__,
         }
     }
 }
@@ -203,7 +203,7 @@ impl From<u8> for CCKeycode {
 impl From<CCKeycode> for u8 {
     fn from(value: CCKeycode) -> Self {
         match value {
-            CCKeycode::_______ => 0x00,
+            CCKeycode::__NOP__ => 0x00,
             CCKeycode::___A___ => 0x04,
             CCKeycode::___B___ => 0x05,
             CCKeycode::___C___ => 0x06,
@@ -247,7 +247,7 @@ impl From<CCKeycode> for u8 {
 
             CCKeycode::_SPACE_ => 0x2C,
 
-            CCKeycode::SEMICLN => 0x33,
+            CCKeycode::Semicln => 0x33,
             CCKeycode::_QUOTE_ => 0x34,
 
             CCKeycode::_COMMA_ => 0x36,
@@ -282,10 +282,10 @@ impl From<CCKeycode> for u8 {
             CCKeycode::_DOWN__ => 0x51,
             CCKeycode::__UP___ => 0x52,
 
-            CCKeycode::LCTRL => 0xE0,
-            CCKeycode::LSHFT => 0xE1,
-            CCKeycode::LALT => 0xE2,
-            CCKeycode::LGUI => 0xE3,
+            CCKeycode::Lctrl => 0xE0,
+            CCKeycode::Lshft => 0xE1,
+            CCKeycode::Lalt => 0xE2,
+            CCKeycode::Lgui => 0xE3,
 
             _ => 0x00, // default to no key
         }

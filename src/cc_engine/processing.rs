@@ -13,10 +13,10 @@ pub fn process_poll_result(result: &[KeySM]) -> descriptor::KeyboardReport {
         match key.get_keycode() {
             Some(keycode) => {
                 match keycode {
-                    CCKeycode::LCTRL => report.modifier |= CCModifier::L_CTRL as u8,
-                    CCKeycode::LSHFT => report.modifier |= CCModifier::L_SHFT as u8,
-                    CCKeycode::LALT => report.modifier |= CCModifier::L_ALT as u8,
-                    CCKeycode::LGUI => report.modifier |= CCModifier::L_GUI as u8,
+                    CCKeycode::Lctrl => report.modifier |= CCModifier::L_CTRL as u8,
+                    CCKeycode::Lshft => report.modifier |= CCModifier::L_SHFT as u8,
+                    CCKeycode::Lalt => report.modifier |= CCModifier::L_ALT as u8,
+                    CCKeycode::Lgui => report.modifier |= CCModifier::L_GUI as u8,
                     _ => {
                         // process the keycode
                         if index < 6 {
