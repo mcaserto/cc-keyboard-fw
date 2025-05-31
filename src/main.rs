@@ -19,7 +19,7 @@ use cc_engine::tasks::status;
 use cc_engine::tasks::usb;
 
 // our keyboard definitions
-mod keymap;
+mod config;
 
 #[cortex_m_rt::entry]
 fn main() -> ! {

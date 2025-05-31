@@ -1,6 +1,7 @@
 // File: keymap.rs
 // Description: Contains information about the keyboard keymap
 use crate::cc_engine::keycodes::CCKeycode::{self, *};
+use crate::cc_engine::keycodes::CCModifier::*;
 
 pub const ROWS: u8 = 4;
 pub const COLUMNS: u8 = 12;
@@ -14,7 +15,7 @@ type CCKeymap = [CCLayer; NUM_LAYERS as usize];
 pub const KEYMAP: CCKeymap = [
 [
     __TAB__, ___Q___, ___W___, ___E___, ___R___,  ___T___, ___Y___, ___U___,  ___I___, ___O___, ___P___, BACK_SP,
-    BACK_SP, ___A___, ___S___, ___D___, ___F___,  ___G___, ___H___, ___J___,  ___K___, ___L___, SEMICLN, _QUOTE_,
+    BACK_SP, ___A___, ___S___, ___D___, MT(L_SHFT, 0x09),  ___G___, ___H___, ___J___,  ___K___, ___L___, SEMICLN, _QUOTE_,
     L_SHIFT, ___Z___, ___X___, ___C___, ___V___,  ___B___, ___N___, ___M___,  _COMMA_, __DOT__, _SLASH_, _ENTER_,
     __ESC__, L__CTRL, L___ALT, L___GUI, LAYER(1), _SPACE_, _SPACE_, LAYER(2), _LEFT__, _DOWN__, _RIGHT_, __UP___,
 ],

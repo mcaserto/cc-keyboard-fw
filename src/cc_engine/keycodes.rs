@@ -89,10 +89,10 @@ pub enum CCKeycode {
     L___GUI = 0xE3,
 
     // custom codes for CC Firmware
-    LAYER(u8),   // layer shift key
-    PASSTHR,     // pass-through
-    MACRO(fn()), // macro
-    MOD(CCModifier, u8),
+    LAYER(u8),          // layer shift key
+    PASSTHR,            // pass-through
+    MACRO(fn()),        // macro
+    MT(CCModifier, u8), // mod tap
 }
 
 #[repr(u8)]

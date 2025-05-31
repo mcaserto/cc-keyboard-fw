@@ -4,15 +4,15 @@ use usbd_hid::descriptor::{self, KeyboardReport};
 
 // crate includes
 use super::resources;
-use crate::keymap;
+use crate::config;
 
 // task for polling the keyboard matrix
 #[embassy_executor::task]
 pub async fn matrix_polling_handler(
     mut key_matrix: matrix::KeyboardMatrix<
         'static,
-        { keymap::ROWS as usize },
-        { keymap::COLUMNS as usize },
+        { config::ROWS as usize },
+        { config::COLUMNS as usize },
     >,
 ) {
     // loop
