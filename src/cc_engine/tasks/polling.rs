@@ -17,7 +17,7 @@ pub async fn matrix_polling_handler(
     // loop
     loop {
         let result = key_matrix.poll();
-        let report = cc_engine::processing::process_poll_result(result);
+        let report = cc_engine::processing::process_keyboard_report(result);
 
         resources::KEYBOARD_REPORT_CHANNEL.send(report).await;
         Timer::after_millis(1).await;

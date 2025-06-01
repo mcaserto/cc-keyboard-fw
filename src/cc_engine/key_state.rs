@@ -52,11 +52,12 @@ impl KeySM {
 
         match self.active_key {
             Key::Layer(commanded_layer) => {
-                // store base keycode
+                // shift layer and update status led
                 resources::STATUS_SIGNAL.signal(resources::Status::Color(RGB8::new(0, 0, 50)));
                 *layer = usize::from(commanded_layer);
             }
             Key::Pass => {
+                // determine the key on the lower layer and press that instead
                 let mut current_layer = *layer;
                 while config::KEYMAP[current_layer][usize::from(keymap_index)] == Key::Pass
                     && current_layer >= 1
@@ -69,8 +70,16 @@ impl KeySM {
                 // call the macro
                 callback();
             }
-            Key::MT(_modifier, _keycode) => {
-                // do nothing on a tap for a MT key
+            Key::DT(single_tap, double_tap) => {
+                if (self.timestamp_tapped - self.timestamp_released).as_millis()
+                    <= config::TAP_TAP_THRESHOLD
+                {
+                    // double tap!
+                    self.active_key = Key::Hid(double_tap);
+                } else {
+                    // single tap :(
+                    self.active_key = Key::Hid(single_tap);
+                }
             }
             _ => (),
         };
@@ -155,8 +164,11 @@ impl KeySM {
             Key::Pass => None,
             Key::Macro(_callback) => None,
             Key::MT(_mod, _keycode) => None,
+            Key::DT(_single, _double) => None,
             Key::Mod(_) => Some(self.active_key),
             Key::Hid(_) => Some(self.active_key),
+            Key::Media(_) => Some(self.active_key),
+            Key::Sys(_) => Some(self.active_key),
         }
     }
 }

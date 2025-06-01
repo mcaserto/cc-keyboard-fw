@@ -1,21 +1,24 @@
 // File: keycodes.rs
 // Description: Contains all valid keycodes for cc_engine keyboard firmware
-
 #[repr(u8)]
 #[allow(dead_code)]
 #[derive(Copy, Clone, PartialEq)]
 pub enum Key {
-    Hid(Hid),
-    Mod(Mod),
-    Layer(u8),    // layer shift key
-    Pass,         // pass-through
+    Hid(Hid),     // standard keycodes
+    Mod(Mod),     // modifier keycodes
+    Media(Media), // media keys
+    Sys(Sys),
+
+    // custom codes begin
+    Layer(u8),    // layer shift
+    Pass,         // pass through
     Macro(fn()),  // macro
-    MT(Mod, Hid), // mod tap (tap, hold)
+    MT(Mod, Hid), // mod tap (modifier, tap keycode)
+    DT(Hid, Hid), // double tap (!TODO)
 }
 
 #[repr(u8)]
 #[allow(dead_code)]
-#[allow(non_camel_case_types)]
 #[derive(Copy, Clone, PartialEq)]
 pub enum Hid {
     Nop = 0x00,
@@ -94,16 +97,88 @@ pub enum Hid {
     Left = 0x50,
     Down = 0x51,
     Up = 0x52,
-    // Lctrl = 0xE0,
-    // Lshft = 0xE1,
-    // Lalt = 0xE2,
-    // Lgui = 0xE3,
 }
 
 #[repr(u8)]
 #[allow(dead_code)]
 #[derive(Copy, Clone, PartialEq)]
 pub enum Mod {
+    Lctrl = 0x01,
+    Lshft = 0x02,
+    Lalt = 0x04,
+    Lgui = 0x08,
+    Rctrl = 0x10,
+    Rshft = 0x20,
+    Ralt = 0x40,
+    Rgui = 0x80,
+}
+
+#[repr(u16)]
+#[allow(dead_code)]
+#[derive(Copy, Clone, PartialEq)]
+pub enum Media {
+    Lctrl = 0x01,
+    Lshft = 0x02,
+    Lalt = 0x04,
+    Lgui = 0x08,
+    Rctrl = 0x10,
+    Rshft = 0x20,
+    Ralt = 0x40,
+    Rgui = 0x80,
+}
+
+#[repr(u8)]
+#[allow(dead_code)]
+#[derive(Copy, Clone, PartialEq)]
+pub enum Sys {
+    PowerDown = 0x81,
+    Sleep = 0x82,
+    WakeUp = 0x83,
+    ContextMenu = 0x84,
+    MainMenu = 0x85,
+    AppMenu = 0x86,
+    MenuHelp = 0x87,
+    MenuExit = 0x88,
+    MenuSelect = 0x89,
+    MenuRight = 0x8A,
+    MenuLeft = 0x8B,
+    MenuUp = 0x8C,
+    MenuDown = 0x8D,
+    ColdRestart = 0x8E,
+    WarmRestart = 0x8F,
+    DpadUp = 0x90,
+    DpadDown = 0x91,
+    DpadRight = 0x92,
+    DpadLeft = 0x93,
+    SystemFunctionShift = 0x97,
+    SystemFunctionShiftLock = 0x98,
+    SystemDismissNotification = 0x9A,
+    SystemDoNotDisturb = 0x9B,
+    Dock = 0xA0,
+    Undock = 0xA1,
+    Setup = 0xA2,
+    Break = 0xA3,
+    DebuggerBreak = 0xA4,
+    ApplicationBreak = 0xA5,
+    ApplicationDebuggerBreak = 0xA6,
+    SpeakerMute = 0xA7,
+    Hibernate = 0xA8,
+    DisplayInvert = 0xB0,
+    DisplayInternal = 0xB1,
+    DisplayExternal = 0xB2,
+    DisplayBoth = 0xB3,
+    DisplayDual = 0xB4,
+    DisplayToggleInternalExternal = 0xB5,
+    DisplaySwapPrimarySecondary = 0xB6,
+    DisplayLcdAutoscale = 0xB7,
+    // Use this reserved value to represent all reserved keys / invalid values
+    Reserved = 0xB8,
+}
+
+#[repr(u8)]
+#[allow(dead_code)]
+#[derive(Copy, Clone, PartialEq)]
+pub enum Mouse {
     Lctrl = 0x01,
     Lshft = 0x02,
     Lalt = 0x04,
