@@ -1,7 +1,7 @@
 // File: keymap.rs
 // Description: Contains information about the keyboard keymap
 use crate::cc_engine::keycodes::Hid::*;
-use crate::cc_engine::keycodes::Key::{self, Hid, Layer, Macro, Mod, Pass, DT, MT};
+use crate::cc_engine::keycodes::Key::{self, Hid, Layer, Macro, Mod, Pass, Shft, DT, MT};
 use crate::cc_engine::keycodes::{self, Mod::*};
 
 pub const ROWS: u8 = 4;
@@ -19,7 +19,7 @@ type Keymap = [KbLayer; NUM_LAYERS as usize];
 #[rustfmt::skip]
 pub const KEYMAP: Keymap = [
 [
-    Hid(Tab),    Hid(Q),     Hid(W),    Hid(E),    Hid(R),       Hid(T),     Hid(Y),     Hid(U),       Hid(I),    Hid(O),    Hid(P),       Hid(Backsp),
+    Hid(Tab),    Hid(Q),     Hid(W),    Hid(E),    Hid(R),       Hid(T),     Hid(Y),     Hid(U),       Shft(N9),  Shft(N0),    Hid(P),       Hid(Backsp),
     Hid(Backsp), Hid(A),     Hid(S),    Hid(D),    Hid(F),       Hid(G),     Hid(H),     Hid(J),       Hid(K),    Hid(L),    Hid(Semicln), Hid(Quote),
     Mod(Lshft),  Hid(Z),     Hid(X),    Hid(C),    Hid(V),       Hid(B),     Hid(N),     Hid(M),       Hid(Com),  Hid(Dot),  Hid(Slash),   Hid(Enter),
     Hid(Esc),    Mod(Lctrl), Mod(Lalt), Mod(Lgui), Layer(1),     Hid(Space), Hid(Space), Layer(2),     Hid(Left), Hid(Down), Hid(Right),   Hid(Up),

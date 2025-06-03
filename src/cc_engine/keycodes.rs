@@ -7,7 +7,9 @@ pub enum Key {
     Hid(Hid),     // standard keycodes
     Mod(Mod),     // modifier keycodes
     Media(Media), // media keys
-    Sys(Sys),
+    Sys(Sys),     // system commands
+    Shft(Hid),
+    //Snap
 
     // custom codes begin
     Layer(u8),    // layer shift

@@ -169,6 +169,7 @@ impl KeySM {
             Key::Hid(_) => Some(self.active_key),
             Key::Media(_) => Some(self.active_key),
             Key::Sys(_) => Some(self.active_key),
+            Key::Shft(_) => Some(self.active_key),
         }
     }
 }
