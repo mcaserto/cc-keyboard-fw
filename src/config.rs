@@ -1,6 +1,7 @@
 // File: keymap.rs
 // Description: Contains information about the keyboard keymap
 use crate::cc_engine::keycodes::Hid::*;
+#[allow(unused_imports)]
 use crate::cc_engine::keycodes::Key::{self, Hid, Layer, Macro, Mod, Pass, Shft, DT, MT};
 use crate::cc_engine::keycodes::{self, Mod::*};
 

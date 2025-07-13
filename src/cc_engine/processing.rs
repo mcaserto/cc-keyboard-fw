@@ -39,20 +39,22 @@ pub fn process_keyboard_report(result: &[KeySM]) -> descriptor::KeyboardReport {
     report
 }
 
+#[allow(dead_code)]
 pub fn process_media_report(result: &[KeySM]) -> descriptor::MediaKeyboardReport {
     let mut report = descriptor::MediaKeyboardReport { usage_id: 0 };
 
     for key in result.iter() {
         // add the keycode to our keyboard report
         match key.get_keycode() {
-            Some(keycode) => {
-                match keycode {
-                    Key::Media(id) => report.usage_id = id as u16,
-                    _ => (), // ignore all other keycodes
-                }
+            Some(Key::Media(id)) => {
+                // process media key ( Probably not working, still in progress )
+                report.usage_id = id as u16
             }
             None => {
                 // do nothing for none
+            }
+            _ => {
+                // do nothing for other keycodes
             }
         }
     }
@@ -60,20 +62,19 @@ pub fn process_media_report(result: &[KeySM]) -> descriptor::MediaKeyboardReport
     report
 }
 
+#[allow(dead_code)]
 pub fn process_control_report(result: &[KeySM]) -> descriptor::SystemControlReport {
     let mut report = descriptor::SystemControlReport { usage_id: 0 };
 
     for key in result.iter() {
         // add the keycode to our keyboard report
         match key.get_keycode() {
-            Some(keycode) => {
-                match keycode {
-                    Key::Sys(id) => report.usage_id = id as u8,
-                    _ => (), // ignore all other keycodes
-                }
-            }
+            Some(Key::Sys(id)) => report.usage_id = id as u8,
             None => {
                 // do nothing for none
+            }
+            _ => {
+                // do nothing for other keycodes
             }
         }
     }
