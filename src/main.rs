@@ -3,7 +3,7 @@
 
 // embassy-rs includes
 use embassy_executor::Executor;
-use embassy_rp::gpio::Pin;
+use embassy_rp::gpio::Flex;
 use embassy_rp::multicore;
 
 // panic handler, logging, etc.
@@ -19,7 +19,7 @@ use cc_engine::tasks::status;
 use cc_engine::tasks::usb;
 
 // our keyboard definitions
-mod keymap;
+mod config;
 
 #[cortex_m_rt::entry]
 fn main() -> ! {
@@ -27,31 +27,31 @@ fn main() -> ! {
 
     // create a key matrix ( ideally I want this to be set up in the keymap.rs file so everything is configured there )
     let rows = [
-        p.PIN_0.degrade(),
-        p.PIN_1.degrade(),
-        p.PIN_2.degrade(),
-        p.PIN_3.degrade(),
+        Flex::new(p.PIN_0),
+        Flex::new(p.PIN_1),
+        Flex::new(p.PIN_2),
+        Flex::new(p.PIN_3),
     ];
     let cols = [
-        p.PIN_4.degrade(),
-        p.PIN_5.degrade(),
-        p.PIN_6.degrade(),
-        p.PIN_7.degrade(),
-        p.PIN_8.degrade(),
-        p.PIN_9.degrade(),
-        p.PIN_29.degrade(),
-        p.PIN_28.degrade(),
-        p.PIN_27.degrade(),
-        p.PIN_26.degrade(),
-        p.PIN_18.degrade(),
-        p.PIN_20.degrade(),
+        Flex::new(p.PIN_4),
+        Flex::new(p.PIN_5),
+        Flex::new(p.PIN_6),
+        Flex::new(p.PIN_7),
+        Flex::new(p.PIN_8),
+        Flex::new(p.PIN_9),
+        Flex::new(p.PIN_29),
+        Flex::new(p.PIN_28),
+        Flex::new(p.PIN_27),
+        Flex::new(p.PIN_26),
+        Flex::new(p.PIN_18),
+        Flex::new(p.PIN_20),
     ];
 
     // create keymap from rows and columns
     let key_matrix = matrix::KeyboardMatrix::new(rows, cols, matrix::DiodeDirection::ColumnToRow);
 
     // spawn tasks onto the desired cores
-    static mut CORE1_STACK: multicore::Stack<4096> = multicore::Stack::new();
+    static mut CORE1_STACK: multicore::Stack<10258> = multicore::Stack::new();
     static EXECUTOR0: StaticCell<Executor> = StaticCell::new();
     static EXECUTOR1: StaticCell<Executor> = StaticCell::new();
 

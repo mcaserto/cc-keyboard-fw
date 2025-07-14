@@ -1,68 +1,80 @@
-use crate::cc_engine::matrix;
-use crate::keymap;
 use usbd_hid::descriptor;
 
-use crate::cc_engine::keycodes::CCKeycode;
+use super::key_state::KeySM;
+use crate::cc_engine::keycodes::*;
 
-pub fn process_poll_result(result: &mut matrix::PollResult) -> descriptor::KeyboardReport {
-    let mut active_layer = 0;
-    // list of keys we will process
-    let mut storage_index = 0;
-    let mut keys_to_process = [matrix::Key { row: 0, column: 0 }; 10];
+pub fn process_keyboard_report(result: &[KeySM]) -> descriptor::KeyboardReport {
+    let mut report = descriptor::KeyboardReport::default();
 
-    // convert the poll results into keycodes
-    let pressed_keys = result.get_pressed_keys();
-    let keycode_count = result.get_num_keys();
-
-    // loop through and store our keys but also look for any shifts
-    for key in pressed_keys.iter().take(keycode_count) {
-        let keymap_index = (keymap::COLUMNS * key.row) + key.column;
-        let keycode = keymap::KEYMAP[active_layer][keymap_index];
-
-        match keycode {
-            CCKeycode::CC_LAY(commanded_layer) => {
-                active_layer = commanded_layer;
+    let mut index = 0;
+    for key in result.iter() {
+        // add the keycode to our keyboard report
+        match key.get_keycode() {
+            Some(keycode) => {
+                match keycode {
+                    Key::Mod(modifier) => report.modifier |= modifier as u8,
+                    Key::Hid(keycode) => {
+                        if index < 6 {
+                            report.keycodes[index] = keycode as u8;
+                            index += 1;
+                        }
+                    }
+                    Key::Shft(keycode) => {
+                        if index < 6 {
+                            // auto apply shift for this keycode
+                            report.keycodes[index] = keycode as u8;
+                            report.modifier |= Mod::Lshft as u8;
+                            index += 1;
+                        }
+                    }
+                    _ => (), // ignore all other keycodes
+                }
             }
-            CCKeycode::CC_NONE => {
-                // don't add to our list
-            }
-            _ => {
-                // process this key
-                keys_to_process[storage_index] = *key;
-                storage_index += 1;
+            None => {
+                // do nothing for none
             }
         }
     }
 
-    // now that we have the keys we want, create a keyboard report from them
-    let mut report = descriptor::KeyboardReport::default();
-    let mut keycode_index = 0;
+    report
+}
 
-    for key in keys_to_process.iter_mut().take(storage_index) {
-        let keymap_index = (keymap::COLUMNS * key.row) + key.column;
-        let keycode = keymap::KEYMAP[active_layer][keymap_index];
+#[allow(dead_code)]
+pub fn process_media_report(result: &[KeySM]) -> descriptor::MediaKeyboardReport {
+    let mut report = descriptor::MediaKeyboardReport { usage_id: 0 };
 
-        match keycode {
-            CCKeycode::CC_NONE => {
-                // do nothing for now
+    for key in result.iter() {
+        // add the keycode to our keyboard report
+        match key.get_keycode() {
+            Some(Key::Media(id)) => {
+                // process media key ( Probably not working, still in progress )
+                report.usage_id = id as u16
             }
-            CCKeycode::CC_LAY(_layer) => {
-                // do nothing for now
-            }
-            CCKeycode::CC_CTRL => report.modifier |= 0x01,
-            CCKeycode::CC_SHFT => report.modifier |= 0x02,
-            CCKeycode::CC__ALT => report.modifier |= 0x04,
-            CCKeycode::CC__GUI => report.modifier |= 0x08,
-            CCKeycode::CC_PASS => {
-                if active_layer > 0 {
-                    let keycode = keymap::KEYMAP[active_layer - 1][keymap_index];
-                    report.keycodes[keycode_index] = u8::from(keycode);
-                    keycode_index += 1;
-                }
+            None => {
+                // do nothing for none
             }
             _ => {
-                report.keycodes[keycode_index] = u8::from(keycode);
-                keycode_index += 1;
+                // do nothing for other keycodes
+            }
+        }
+    }
+
+    report
+}
+
+#[allow(dead_code)]
+pub fn process_control_report(result: &[KeySM]) -> descriptor::SystemControlReport {
+    let mut report = descriptor::SystemControlReport { usage_id: 0 };
+
+    for key in result.iter() {
+        // add the keycode to our keyboard report
+        match key.get_keycode() {
+            Some(Key::Sys(id)) => report.usage_id = id as u8,
+            None => {
+                // do nothing for none
+            }
+            _ => {
+                // do nothing for other keycodes
             }
         }
     }
