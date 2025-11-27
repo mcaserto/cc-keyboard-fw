@@ -27,7 +27,7 @@ mod config;
 fn main() -> ! {
     // Set up for clock frequency of 200 MHz, setting all necessary defaults.
     let config = Config::new(ClockConfig::system_freq(200_000_000).unwrap());
-    let p = embassy_rp::init(Config::default());
+    let p = embassy_rp::init(config);
 
     // create a key matrix ( ideally I want this to be set up in the keymap.rs file so everything is configured there )
     let rows = [
