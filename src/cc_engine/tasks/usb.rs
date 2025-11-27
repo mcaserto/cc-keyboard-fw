@@ -17,7 +17,10 @@ embassy_rp::bind_interrupts!(struct Irqs {
 });
 
 // task for setting up the usb handler and processing usb events
-pub fn initialize_usb_resources(usb_peripheral: Peri<'static, peripherals::USB>, spawner: &Spawner) {
+pub fn initialize_usb_resources(
+    usb_peripheral: Peri<'static, peripherals::USB>,
+    spawner: &Spawner,
+) {
     // Create the driver, from the HAL.
     let driver = usb::Driver::new(usb_peripheral, Irqs);
 

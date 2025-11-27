@@ -3,10 +3,10 @@
 
 // embassy-rs includes
 use embassy_executor::Executor;
-use embassy_rp::gpio::Flex;
-use embassy_rp::multicore;
 use embassy_rp::clocks::ClockConfig;
 use embassy_rp::config::Config;
+use embassy_rp::gpio::Flex;
+use embassy_rp::multicore;
 
 // panic handler, logging, etc.
 use panic_probe as _;

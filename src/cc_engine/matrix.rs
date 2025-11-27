@@ -1,4 +1,4 @@
-use embassy_rp::gpio::{Flex, Pull, SlewRate, Drive};
+use embassy_rp::gpio::{Drive, Flex, Pull, SlewRate};
 
 use crate::config;
 
@@ -92,7 +92,7 @@ impl<'a, const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<'a, ROW_SI
                 // poll by setting rows and reading columns
                 for (row_index, row) in &mut self.rows.iter_mut().enumerate() {
                     row.set_high();
-                    cortex_m::asm::delay(110);   // need this because of my poorly chosen diode direction
+                    cortex_m::asm::delay(110); // need this because of my poorly chosen diode direction
 
                     // poll the columns
                     for (col_index, col) in &mut self.columns.iter_mut().enumerate() {
