@@ -30,8 +30,7 @@
             rust-analyzer
             rustfmt
             clippy
-            gdb # Or other debugger
-            openocd # For flashing/debugging
+            elf2uf2-rs
           ];
 
           RUST_TARGET = "thumbv6m-none-eabi";

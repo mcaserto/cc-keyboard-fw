@@ -1,6 +1,7 @@
 // embassy includes
 use embassy_rp::{
     bind_interrupts,
+    Peri,
     peripherals::{self, DMA_CH0, PIO0},
     pio::{InterruptHandler, Pio},
     pio_programs::ws2812::{PioWs2812, PioWs2812Program},
@@ -15,7 +16,7 @@ bind_interrupts!(struct Irqs {
 });
 
 #[embassy_executor::task]
-pub async fn status_light_handler(status_led: peripherals::PIN_17, pio: PIO0, dma: DMA_CH0) -> ! {
+pub async fn status_light_handler(status_led: Peri<'static, peripherals::PIN_17>, pio: Peri<'static, PIO0>, dma: Peri<'static, DMA_CH0>) -> ! {
     // setup pio for driving addressable led
     let Pio {
         mut common, sm0, ..
