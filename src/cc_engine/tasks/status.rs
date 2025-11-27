@@ -47,7 +47,7 @@ pub async fn status_light_handler(
             resources::Status::Error => smart_leds::RGB8::new(50, 0, 0),
             resources::Status::Color(color) => color,
             resources::Status::Heartbeat => {
-                if counter % 2 == 0 {
+                if counter.is_multiple_of(2) {
                     smart_leds::RGB8::new(5, 5, 5)
                 } else {
                     smart_leds::RGB8::new(0, 0, 0)
