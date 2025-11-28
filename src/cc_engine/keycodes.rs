@@ -2,7 +2,7 @@
 // Description: Contains all valid keycodes for cc_engine keyboard firmware
 #[repr(u8)]
 #[allow(dead_code)]
-#[allow(unpredictable_function_pointer_comparisons)]    // needed for Macro
+#[allow(unpredictable_function_pointer_comparisons)] // needed for Macro
 #[derive(Copy, Clone, PartialEq)]
 pub enum Key {
     Hid(Hid),     // standard keycodes
