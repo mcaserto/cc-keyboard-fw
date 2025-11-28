@@ -3,6 +3,8 @@
 
 // embassy-rs includes
 use embassy_executor::Executor;
+use embassy_rp::clocks::ClockConfig;
+use embassy_rp::config::Config;
 use embassy_rp::gpio::Flex;
 use embassy_rp::multicore;
 
@@ -23,7 +25,9 @@ mod config;
 
 #[cortex_m_rt::entry]
 fn main() -> ! {
-    let p = embassy_rp::init(Default::default());
+    // Set up for clock frequency of 200 MHz, setting all necessary defaults.
+    let config = Config::new(ClockConfig::system_freq(200_000_000).unwrap());
+    let p = embassy_rp::init(config);
 
     // create a key matrix ( ideally I want this to be set up in the keymap.rs file so everything is configured there )
     let rows = [

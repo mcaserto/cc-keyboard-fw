@@ -1,4 +1,4 @@
-use embassy_rp::gpio::{Flex, Pull};
+use embassy_rp::gpio::{Drive, Flex, Pull, SlewRate};
 
 use crate::config;
 
@@ -27,7 +27,11 @@ impl<'a, const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<'a, ROW_SI
         match &diode_direction {
             DiodeDirection::ColumnToRow => {
                 // set rows as input and columns as output
-                columns.iter_mut().for_each(|col| col.set_as_output());
+                columns.iter_mut().for_each(|col| {
+                    col.set_as_output();
+                    col.set_slew_rate(SlewRate::Fast);
+                    col.set_drive_strength(Drive::_12mA);
+                });
                 rows.iter_mut().for_each(|row| {
                     row.set_as_input();
                     row.set_pull(Pull::Down);
@@ -35,7 +39,11 @@ impl<'a, const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<'a, ROW_SI
             }
             DiodeDirection::RowToColumn => {
                 // set rows as output and columns as input
-                rows.iter_mut().for_each(|row| row.set_as_output());
+                rows.iter_mut().for_each(|row| {
+                    row.set_as_output();
+                    row.set_slew_rate(SlewRate::Fast);
+                    row.set_drive_strength(Drive::_12mA);
+                });
                 columns.iter_mut().for_each(|col| {
                     col.set_as_input();
                     col.set_pull(Pull::Down);
@@ -70,7 +78,7 @@ impl<'a, const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<'a, ROW_SI
                 // poll by settign columns and readings rows
                 for (col_index, col) in &mut self.columns.iter_mut().enumerate() {
                     col.set_high();
-                    cortex_m::asm::delay(50);
+                    cortex_m::asm::delay(110); // need this because of my poorly chosen diode direction
 
                     // poll the rows
                     for (row_index, row) in &mut self.rows.iter_mut().enumerate() {
@@ -84,7 +92,7 @@ impl<'a, const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<'a, ROW_SI
                 // poll by setting rows and reading columns
                 for (row_index, row) in &mut self.rows.iter_mut().enumerate() {
                     row.set_high();
-                    cortex_m::asm::delay(50);
+                    cortex_m::asm::delay(110); // need this because of my poorly chosen diode direction
 
                     // poll the columns
                     for (col_index, col) in &mut self.columns.iter_mut().enumerate() {

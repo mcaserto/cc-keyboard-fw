@@ -4,6 +4,7 @@ use embassy_rp::{
     peripherals::{self, DMA_CH0, PIO0},
     pio::{InterruptHandler, Pio},
     pio_programs::ws2812::{PioWs2812, PioWs2812Program},
+    Peri,
 };
 use embassy_time::Timer;
 
@@ -15,7 +16,11 @@ bind_interrupts!(struct Irqs {
 });
 
 #[embassy_executor::task]
-pub async fn status_light_handler(status_led: peripherals::PIN_17, pio: PIO0, dma: DMA_CH0) -> ! {
+pub async fn status_light_handler(
+    status_led: Peri<'static, peripherals::PIN_17>,
+    pio: Peri<'static, PIO0>,
+    dma: Peri<'static, DMA_CH0>,
+) -> ! {
     // setup pio for driving addressable led
     let Pio {
         mut common, sm0, ..
@@ -42,7 +47,7 @@ pub async fn status_light_handler(status_led: peripherals::PIN_17, pio: PIO0, dm
             resources::Status::Error => smart_leds::RGB8::new(50, 0, 0),
             resources::Status::Color(color) => color,
             resources::Status::Heartbeat => {
-                if counter % 2 == 0 {
+                if counter.is_multiple_of(2) {
                     smart_leds::RGB8::new(5, 5, 5)
                 } else {
                     smart_leds::RGB8::new(0, 0, 0)

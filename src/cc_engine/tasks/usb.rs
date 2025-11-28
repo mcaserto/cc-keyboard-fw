@@ -3,7 +3,7 @@ use core::sync::atomic::{AtomicBool, Ordering};
 use defmt::*;
 use embassy_executor::Spawner;
 use embassy_futures::select::Either4;
-use embassy_rp::{peripherals, usb};
+use embassy_rp::{peripherals, usb, Peri};
 use embassy_usb::class::hid;
 use embassy_usb::control;
 use static_cell::StaticCell;
@@ -17,7 +17,10 @@ embassy_rp::bind_interrupts!(struct Irqs {
 });
 
 // task for setting up the usb handler and processing usb events
-pub fn initialize_usb_resources(usb_peripheral: peripherals::USB, spawner: &Spawner) {
+pub fn initialize_usb_resources(
+    usb_peripheral: Peri<'static, peripherals::USB>,
+    spawner: &Spawner,
+) {
     // Create the driver, from the HAL.
     let driver = usb::Driver::new(usb_peripheral, Irqs);
 
@@ -90,7 +93,7 @@ async fn usb_out_handler(
         )
         .await;
 
-        match report {
+        match &report {
             Either4::First(keyboard_report) => {
                 write_report(keyboard_report, &mut writer).await;
             }
@@ -109,10 +112,10 @@ async fn usb_out_handler(
 }
 
 async fn write_report<T: AsInputReport>(
-    report: T,
+    report: &T,
     writer: &mut hid::HidWriter<'static, usb::Driver<'static, peripherals::USB>, 8>,
 ) {
-    match writer.write_serialize(&report).await {
+    match writer.write_serialize(report).await {
         Ok(()) => {}
         Err(e) => warn!("Failed to send report: {:?}", e),
     };
