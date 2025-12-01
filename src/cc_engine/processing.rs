@@ -27,6 +27,14 @@ pub fn process_keyboard_report(result: &[KeySM]) -> descriptor::KeyboardReport {
                             index += 1;
                         }
                     }
+                    Key::Ctrl(keycode) => {
+                        if index < 6 {
+                            // auto apply shift for this keycode
+                            report.keycodes[index] = keycode as u8;
+                            report.modifier |= Mod::Lctrl as u8;
+                            index += 1;
+                        }
+                    }
                     _ => (), // ignore all other keycodes
                 }
             }

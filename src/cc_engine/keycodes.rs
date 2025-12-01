@@ -9,7 +9,8 @@ pub enum Key {
     Mod(Mod),     // modifier keycodes
     Media(Media), // media keys
     Sys(Sys),     // system commands
-    Shft(Hid),
+    Shft(Hid),    // SHIFT + keycode
+    Ctrl(Hid),    // CTRL + Keycode
     //Snap
 
     // custom codes begin
@@ -71,6 +72,7 @@ pub enum Hid {
     Semicln = 0x33,
     Quote = 0x34,
 
+    AccTil = 0x35,
     Com = 0x36,
     Dot = 0x37,
     Slash = 0x38,

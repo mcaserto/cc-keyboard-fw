@@ -3,7 +3,7 @@ use embassy_rp::{
     bind_interrupts,
     peripherals::{self, DMA_CH0, PIO0},
     pio::{InterruptHandler, Pio},
-    pio_programs::ws2812::{PioWs2812, PioWs2812Program},
+    pio_programs::ws2812::{Grb, PioWs2812, PioWs2812Program},
     Peri,
 };
 use embassy_time::Timer;
@@ -28,7 +28,7 @@ pub async fn status_light_handler(
 
     const NUM_LEDS: usize = 1;
     let program = PioWs2812Program::new(&mut common);
-    let mut led_output: PioWs2812<'_, PIO0, 0, NUM_LEDS> =
+    let mut led_output: PioWs2812<'_, PIO0, 0, NUM_LEDS, Grb> =
         PioWs2812::new(&mut common, sm0, dma, status_led, &program);
 
     // initialize state

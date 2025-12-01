@@ -2,7 +2,7 @@
 // Description: Contains information about the keyboard keymap
 use crate::cc_engine::keycodes::Hid::*;
 #[allow(unused_imports)]
-use crate::cc_engine::keycodes::Key::{self, Hid, Layer, Macro, Mod, Pass, Shft, DT, MT};
+use crate::cc_engine::keycodes::Key::{self, Ctrl, Hid, Layer, Macro, Mod, Pass, Shft, DT, MT};
 use crate::cc_engine::keycodes::{self, Mod::*};
 
 pub const ROWS: u8 = 4;
@@ -26,15 +26,15 @@ pub const KEYMAP: Keymap = [
     Hid(Esc),    Mod(Lctrl), Mod(Lalt), Mod(Lgui), Layer(1),     Hid(Space), Hid(Space), Layer(2),     Hid(Left), Hid(Down), Hid(Up),      Hid(Right),
 ],
 [
-    Pass,      Pass,     Pass,     Pass,     Pass,     Pass,     Pass,      Pass,      Pass,    Pass,       Pass, Pass,
-    Pass,      Hid(F01), Hid(F02), Hid(F03), Hid(F04), Hid(F05), Hid(Left), Hid(Down), Hid(Up), Hid(Right), Pass, Pass,
-    Pass,      Hid(F07), Hid(F08), Hid(F09), Hid(F10), Hid(F11), Hid(F12),  Pass,      Pass,    Pass,       Pass, Pass,
-    Macro(m1), Pass,     Pass,     Pass,     Pass,     Pass,     Pass,      Pass,      Pass,    Pass,       Pass, Pass,
+    Shft(AccTil), Hid(N1),  Hid(N2),  Hid(N3),  Hid(N4),  Hid(N5),  Hid(N6),   Hid(N7),   Hid(N8), Hid(N9),    Hid(N0), Pass,
+    Pass,         Pass,     Ctrl(S),  Hid(F03), Hid(F04), Hid(F05), Hid(Left), Hid(Down), Hid(Up), Hid(Right), Pass,    Pass,
+    Pass,         Hid(F07), Hid(F08), Hid(F09), Hid(F10), Hid(F11), Hid(F12),  Pass,      Pass,    Pass,       Pass,    Pass,
+    Macro(m1),    Pass,     Pass,     Pass,     Pass,     Pass,     Pass,      Pass,      Pass,    Pass,       Pass,    Pass,
 ],
 [
-    Pass,      Hid(N0), Hid(N1), Hid(N2), Hid(N3), Pass, Pass, Pass,  Pass, Pass, Pass, Pass,
-    Pass,      Pass,    Hid(N4), Hid(N5), Hid(N6), Pass, Pass, Pass,  Pass, Pass, Pass, Pass,
-    Pass,      Pass,    Hid(N7), Hid(N8), Hid(N9), Pass, Pass, Pass,  Pass, Pass, Pass, Pass,
+    Pass,      Hid(N0), Hid(N1), Hid(N2), Hid(N3), Pass, Pass, Pass,  Hid(F01), Hid(F02), Hid(F03), Hid(F04),
+    Pass,      Pass,    Hid(N4), Hid(N5), Hid(N6), Pass, Pass, Pass,  Hid(F05), Hid(F06), Hid(F07), Hid(F08),
+    Pass,      Pass,    Hid(N7), Hid(N8), Hid(N9), Pass, Pass, Pass,  Hid(F09), Hid(F10), Hid(F11), Hid(F12),
     Macro(m2), Pass,    Pass,    Pass,    Pass,    Pass, Pass, Pass,  Pass, Pass, Pass, Pass,
 ]
 ];
@@ -43,6 +43,7 @@ fn m1() {
     // do stuff
     use super::cc_engine::macros;
     macros::send_string("Test String");
+    // macros::send_mouse_input(50, 50);
 }
 
 fn m2() {
