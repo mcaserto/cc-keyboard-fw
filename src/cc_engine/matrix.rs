@@ -78,7 +78,6 @@ impl<'a, const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<'a, ROW_SI
                 // poll by settign columns and readings rows
                 for (col_index, col) in &mut self.columns.iter_mut().enumerate() {
                     col.set_high();
-                    cortex_m::asm::delay(110); // need this because of my poorly chosen diode direction
 
                     // poll the rows
                     for (row_index, row) in &mut self.rows.iter_mut().enumerate() {
@@ -86,13 +85,17 @@ impl<'a, const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<'a, ROW_SI
                         self.keys[adjusted_index].process(&row.is_high(), &mut self.active_layer);
                     }
                     col.set_low();
+
+                    // wait for all rows to go low before moving to next column ( TODO! Just check a bit mask here of the gpio register so we don't have to loop)
+                    for row in &mut self.rows.iter_mut() {
+                        while row.is_high() {} // loop
+                    }
                 }
             }
             DiodeDirection::RowToColumn => {
                 // poll by setting rows and reading columns
                 for (row_index, row) in &mut self.rows.iter_mut().enumerate() {
                     row.set_high();
-                    cortex_m::asm::delay(110); // need this because of my poorly chosen diode direction
 
                     // poll the columns
                     for (col_index, col) in &mut self.columns.iter_mut().enumerate() {
@@ -100,6 +103,11 @@ impl<'a, const ROW_SIZE: usize, const COL_SIZE: usize> KeyboardMatrix<'a, ROW_SI
                         self.keys[adjusted_index].process(&col.is_high(), &mut self.active_layer);
                     }
                     row.set_low();
+
+                    // wait for all rows to go low before moving to next column ( TODO! Just check a bit mask here of the gpio register so we don't have to loop)
+                    for column in &mut self.columns.iter_mut() {
+                        while column.is_high() {} // loop
+                    }
                 }
             }
         };

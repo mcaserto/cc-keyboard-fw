@@ -66,14 +66,14 @@ fn main() -> ! {
         move || {
             let executor1 = EXECUTOR1.init(Executor::new());
             executor1
-                .run(|spawner| spawner.must_spawn(polling::matrix_polling_handler(key_matrix)));
+                .run(|spawner| spawner.spawn(polling::matrix_polling_handler(key_matrix).unwrap()));
         },
     );
 
     // start the core 0 tasks (just status led and usb handling for now)
     let executor0 = EXECUTOR0.init(Executor::new());
     executor0.run(|spawner| {
-        spawner.must_spawn(status::status_light_handler(p.PIN_17, p.PIO0, p.DMA_CH0));
-        usb::initialize_usb_resources(p.USB, &spawner);
+        spawner.spawn(status::status_light_handler(p.PIN_17, p.PIO0, p.DMA_CH0).unwrap());
+        usb::initialize_usb_resources(p.USB, p.WATCHDOG, &spawner);
     });
 }
