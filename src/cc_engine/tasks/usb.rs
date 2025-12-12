@@ -184,7 +184,7 @@ impl hid::RequestHandler for MyRequestHandler {
         hid::HidProtocolMode::Report
     }
 
-    fn set_protocol(&mut self, protocol: hid::HidProtocolMode) -> control::OutResponse {
+    fn set_protocol(&mut self, _protocol: hid::HidProtocolMode) -> control::OutResponse {
         // TODO! Implement this
         control::OutResponse::Accepted
     }
