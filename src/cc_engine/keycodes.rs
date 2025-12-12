@@ -68,6 +68,11 @@ pub enum Hid {
     Tab = 0x2B,
 
     Space = 0x2C,
+    Dash = 0x2D,
+    Eq = 0x2E,
+    LBrace = 0x2F,
+    RBrace = 0x30,
+    BSlsh = 0x31,
 
     Semicln = 0x33,
     Quote = 0x34,

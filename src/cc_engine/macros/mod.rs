@@ -1,5 +1,8 @@
 #[allow(dead_code)]
-use crate::cc_engine::{keycodes, tasks::resources};
+use crate::cc_engine::{
+    keycodes,
+    tasks::resources::{self, GenericHidReport},
+};
 use usbd_hid::descriptor::KeyboardReport;
 
 use super::keycodes::Hid;
@@ -10,23 +13,23 @@ pub fn send_string(str: &str) {
     for character in str.chars() {
         if character.is_uppercase() {
             report.modifier |= keycodes::Mod::Lshft as u8;
-            let _ = resources::KEYBOARD_REPORT_CHANNEL.try_send(report);
+            let _ = resources::REPORT_CHANNEL.try_send(GenericHidReport::Keyboard(report));
         } else {
             report.modifier = 0;
-            let _ = resources::KEYBOARD_REPORT_CHANNEL.try_send(report);
+            let _ = resources::REPORT_CHANNEL.try_send(GenericHidReport::Keyboard(report));
         }
 
         // ignoring send error for now
         report.keycodes[0] = keycodes::Hid::from(character) as u8;
-        let _ = resources::KEYBOARD_REPORT_CHANNEL.try_send(report);
+        let _ = resources::REPORT_CHANNEL.try_send(GenericHidReport::Keyboard(report));
 
         // hacky to allow sending multiples of a single chracter
         report.keycodes[0] = 0;
-        let _ = resources::KEYBOARD_REPORT_CHANNEL.try_send(report);
+        let _ = resources::REPORT_CHANNEL.try_send(GenericHidReport::Keyboard(report));
     }
 
     report = KeyboardReport::default();
-    let _ = resources::KEYBOARD_REPORT_CHANNEL.try_send(report);
+    let _ = resources::REPORT_CHANNEL.try_send(GenericHidReport::Keyboard(report));
 }
 
 // description: sends a single keycode
@@ -34,9 +37,9 @@ pub fn send_string(str: &str) {
 pub fn send_keycode(code: &Hid) {
     let mut report = KeyboardReport::default();
     report.keycodes[0] = (*code) as u8;
-    let _ = resources::KEYBOARD_REPORT_CHANNEL.try_send(report);
+    let _ = resources::REPORT_CHANNEL.try_send(GenericHidReport::Keyboard(report));
 
     // cancel it
     report.keycodes[0] = 0;
-    let _ = resources::KEYBOARD_REPORT_CHANNEL.try_send(report);
+    let _ = resources::REPORT_CHANNEL.try_send(GenericHidReport::Keyboard(report));
 }
